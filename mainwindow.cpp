@@ -48,7 +48,9 @@ MainWindow::MainWindow(QWidget *parent) :
         myVideoPlayers[i].setVideoOutput(&myVideoWidgets[i]);
     }
 
-    on_comboBoxDomainNames_currentIndexChanged(0);
+    srand (time(NULL));
+    this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
+    on_tabWidget_currentChanged(0);
 }
 
 void MainWindow::loadSettings() {
@@ -80,7 +82,15 @@ MainWindow::~MainWindow()
 {
     stopStreams(0);
     stopStreams(1);
+
+    // Although the heap will be cleared by OS anyway,
+    // it is still a good practice to delete[] then yourself!
+    // (And not doing so results in a SegmentFault...)
     delete[] myVideoPlayers;
+    delete[] myVideoWidgets;
+    delete[] myUrls4Channels;
+    delete[] myUrls16Channels;
+
     delete ui;
 }
 
@@ -103,23 +113,24 @@ void MainWindow::stopStreams(int tabIndex) {
 }
 
 void MainWindow::playStreams(int tabIndex) {
-    for (int i = 0; i < channelCount; i ++) {
-    }
+
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
-            myVideoPlayers[i].setSource(myUrls4Channels[i].replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
+            cout << this->ui->comboBoxDomainNames->currentText().toStdString() << endl;
+            myVideoPlayers[i].setSource(QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
             if (myVideoPlayers[i].playbackState() != QMediaPlayer::PlayingState) {
-
                 myVideoPlayers[i].play();
-                cout << myVideoPlayers[i].errorString().toStdString() << endl;
+                cout << "Start playing: " << myVideoPlayers[i].source().toString().toStdString() << endl;
             }
+            // QString is replace()'ed inplace, therefore, we need to do QString(QString).replace()
+            // so that we only manipulate its copy.
         }
     } else {
         for (int i = 0; i < 16; i ++) {
-            myVideoPlayers[4+i].setSource(myUrls16Channels[i].replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
+            myVideoPlayers[4+i].setSource(QString(myUrls16Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
             if (myVideoPlayers[4+i].playbackState() != QMediaPlayer::PlayingState) {
                 myVideoPlayers[4+i].play();
-                cout << myVideoPlayers[i].errorString().toStdString() << endl;
+                cout << "Start playing: " << myVideoPlayers[4+i].source().toString().toStdString() << endl;
             }
         }
     }
@@ -148,12 +159,17 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_comboBoxDomainNames_currentIndexChanged(int index)
 {
+    cout << this->ui->comboBoxDomainNames->currentText().toStdString() << endl;
     if (this->ui->tabWidget->currentIndex() == 0) {
+        stopStreams(0);
         stopStreams(1);
+
         playStreams(0);
     }
     else {
         stopStreams(0);
+        stopStreams(1);
+
         playStreams(1);
     }
 }
