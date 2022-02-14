@@ -42,8 +42,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],3,3,1,1);
 
     for (int i = 0; i < channelCount; i ++) {
+        myVideoWidgets[i].setAspectRatioMode(Qt::AspectRatioMode::IgnoreAspectRatio);
+        myVideoPlayers[i].setPlaybackRate(0);
+        // Without this, fream will freeze if we play() after stop()
         myVideoPlayers[i].setVideoOutput(&myVideoWidgets[i]);
     }
+
+    on_comboBoxDomainNames_currentIndexChanged(0);
 }
 
 void MainWindow::loadSettings() {
@@ -73,9 +78,8 @@ void MainWindow::loadSettings() {
 
 MainWindow::~MainWindow()
 {
-    for (int i = 0; i < 20; i ++) {
-        myVideoPlayers[i].stop();
-    }
+    stopStreams(0);
+    stopStreams(1);
     delete[] myVideoPlayers;
     delete ui;
 }
@@ -90,7 +94,7 @@ void MainWindow::stopStreams(int tabIndex) {
 
         }
     } else {
-        for (int i = 0; i < 2; i ++) {
+        for (int i = 0; i < 16; i ++) {
             if (myVideoPlayers[4+i].playbackState() == QMediaPlayer::PlayingState) {
                 myVideoPlayers[4+i].stop();
             }
@@ -99,11 +103,13 @@ void MainWindow::stopStreams(int tabIndex) {
 }
 
 void MainWindow::playStreams(int tabIndex) {
-
+    for (int i = 0; i < channelCount; i ++) {
+    }
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
             myVideoPlayers[i].setSource(myUrls4Channels[i].replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
             if (myVideoPlayers[i].playbackState() != QMediaPlayer::PlayingState) {
+
                 myVideoPlayers[i].play();
                 cout << myVideoPlayers[i].errorString().toStdString() << endl;
             }
@@ -120,7 +126,7 @@ void MainWindow::playStreams(int tabIndex) {
 }
 
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_pushButtonExit_clicked()
 {
     QApplication::quit();
 }
@@ -151,4 +157,3 @@ void MainWindow::on_comboBoxDomainNames_currentIndexChanged(int index)
         playStreams(1);
     }
 }
-

@@ -18,7 +18,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_2_clicked();
+    void on_pushButtonExit_clicked();
     void on_tabWidget_currentChanged(int index);
     void on_comboBoxDomainNames_currentIndexChanged(int index);
 
