@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QVideoWidget>
+#include <rtspreader.h>
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +30,8 @@ private:
     QMediaPlayer *myVideoPlayers = new QMediaPlayer[20];
     QString *myUrls4Channels = new QString[4];
     QString *myUrls16Channels = new QString[16];
+
+    rtspReader *myRtspReaders = new rtspReader[4];
 
     void playStreams(int tabIndex);
     void stopStreams(int tabIndex);

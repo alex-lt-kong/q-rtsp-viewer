@@ -25,6 +25,9 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="tab4Channels">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <attribute name="title">
         <string>4通道 / 4 Channels</string>
        </attribute>
@@ -37,6 +40,46 @@
           <property name="spacing">
            <number>1</number>
           </property>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label4Channel01">
+            <property name="text">
+             <string>加载中... / Loading...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label4Channel00">
+            <property name="text">
+             <string>加载中... / Loading...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label4Channel10">
+            <property name="text">
+             <string>加载中... / Loading...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label4Channel11">
+            <property name="text">
+             <string>加载中... / Loading...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

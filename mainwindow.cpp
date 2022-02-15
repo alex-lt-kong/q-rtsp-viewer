@@ -7,7 +7,8 @@
 #include <QVideoWidget>
 #include <QSettings>
 #include <iostream>
-#include<QDebug>
+#include <QDebug>
+#include <rtspreader.h>
 
 using namespace std;
 
@@ -18,11 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     loadSettings();
 
-    int idx = 0;
-    this->ui->gridLayout4Channel->addWidget(&myVideoWidgets[idx++],0,0,1,1);
-    this->ui->gridLayout4Channel->addWidget(&myVideoWidgets[idx++],0,1,1,1);
-    this->ui->gridLayout4Channel->addWidget(&myVideoWidgets[idx++],1,0,1,1);
-    this->ui->gridLayout4Channel->addWidget(&myVideoWidgets[idx++],1,1,1,1);
+    /*int idx = 0;
 
     this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],0,0,1,1);
     this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],0,1,1,1);
@@ -47,6 +44,24 @@ MainWindow::MainWindow(QWidget *parent) :
         // Without this, fream will freeze if we play() after stop()
         myVideoPlayers[i].setVideoOutput(&myVideoWidgets[i]);
     }
+*/
+
+    ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+    ui->label4Channel01->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+    ui->label4Channel10->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+    ui->label4Channel11->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+    /*
+    ui->label4Channel00->setScaledContents(true);
+    ui->label4Channel01->setScaledContents(true);
+    ui->label4Channel10->setScaledContents(true);
+    ui->label4Channel11->setScaledContents(true);
+    // Seems we canNOT set it! it causes a segmentfault, 100% of the time...
+    */
+
+    myRtspReaders[0].setLabel(ui->label4Channel00);
+    myRtspReaders[1].setLabel(ui->label4Channel01);
+    myRtspReaders[2].setLabel(ui->label4Channel10);
+    myRtspReaders[3].setLabel(ui->label4Channel11);
 
     srand (time(NULL));
     this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
@@ -90,6 +105,7 @@ MainWindow::~MainWindow()
     delete[] myVideoWidgets;
     delete[] myUrls4Channels;
     delete[] myUrls16Channels;
+    delete[] myRtspReaders;
 
     delete ui;
 }
@@ -98,21 +114,28 @@ void MainWindow::stopStreams(int tabIndex) {
 
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
-            if (myVideoPlayers[i].playbackState() == QMediaPlayer::PlayingState) {
-                myVideoPlayers[i].stop();
-            }
-
+            myRtspReaders[i].stop();
         }
     } else {
-        for (int i = 0; i < 16; i ++) {
-            if (myVideoPlayers[4+i].playbackState() == QMediaPlayer::PlayingState) {
-                myVideoPlayers[4+i].stop();
-            }
-        }
+
     }
+    return;
 }
 
 void MainWindow::playStreams(int tabIndex) {
+
+
+    if (tabIndex == 0) {
+        for (int i = 0; i < 4; i ++) {
+            myRtspReaders[i].setRtspUrl(QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
+            if (myRtspReaders[i].isRunning() == false) {
+                myRtspReaders[i].start();
+            }
+        }
+    } else {
+
+    }
+    return;
 
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
@@ -159,6 +182,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_comboBoxDomainNames_currentIndexChanged(int index)
 {
+    return;
     cout << this->ui->comboBoxDomainNames->currentText().toStdString() << endl;
     if (this->ui->tabWidget->currentIndex() == 0) {
         stopStreams(0);
