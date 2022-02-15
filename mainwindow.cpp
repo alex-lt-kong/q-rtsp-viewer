@@ -46,11 +46,11 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 */
 
-    ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+    /*ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel01->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel10->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel11->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
-    /*
+
     ui->label4Channel00->setScaledContents(true);
     ui->label4Channel01->setScaledContents(true);
     ui->label4Channel10->setScaledContents(true);

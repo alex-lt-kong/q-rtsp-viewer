@@ -47,14 +47,18 @@ void rtspReader::run()
 
         Mat resized;
         //resize(this->frame, resized, Size(this->label->width(), this->label->height()));
+
         QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888));
+
+
         cout << thread()->currentThreadId() <<
                 ": pixmap.isNull(): " << pixmap.isNull() <<
+                ", frame.cols: " << frame.cols << ", frame.rows " << frame.rows <<
                 ", pixmap.height(): " << pixmap.height() << ", pixmap.width(): " << pixmap.width() <<
                 ", pixmap.isQBitmap(): " << pixmap.isQBitmap() <<
                 ", this->label->height(): " << this->label->height() <<
                 ", this->label->width(): " << this->label->width() << endl;
         this->label->setPixmap(pixmap);
-      //  this->label->setPixmap(pixmap.scaled(this->label->width(), this->label->width(), Qt::AspectRatioMode::IgnoreAspectRatio));
+     //  this->label->setPixmap(pixmap.scaled(this->label->width(), this->label->width(), Qt::AspectRatioMode::IgnoreAspectRatio));
     }
 }
