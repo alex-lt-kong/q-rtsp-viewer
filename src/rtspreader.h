@@ -30,7 +30,6 @@ private:
     QLabel *label;
     bool stopSignal;
     Mat frame;
-    Mat resizedFrame;
 
 };
 #endif // RTSPREADER_H

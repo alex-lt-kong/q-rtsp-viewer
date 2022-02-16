@@ -19,7 +19,8 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-RESOURCES +=
+RESOURCES += \
+    resources.qrc
 
 DISTFILES += \
     README.md
@@ -32,8 +33,10 @@ win32 {
 }
 
 unix{
-    LIBS += -lopencv_core -lopencv_videoio -lopencv_video -lopencv_imgproc
-    # equal to g++ -lopencv_core -lopencv_videoio -lopencv_video -lopencv_imgproc
-    INCLUDEPATH += /usr/local/include/opencv4
-    # equal to g++ -I/usr/local/include/opencv4
+    LIBS += -L/usr/local/lib
+    LIBS += -lopencv_highgui -lopencv_videostab -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_imgproc -lopencv_core
+    INCLUDEPATH += /usr/local/include/opencv2
+    # These 3 lines are equal to
+    # g++ example.cpp -o example -I/usr/local/include/opencv2 -L/usr/local/lib
+    # -lopencv_highgui -lopencv_videostab -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_imgproc -lopencv_core
 }

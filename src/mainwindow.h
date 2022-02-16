@@ -31,7 +31,7 @@ private:
     QString *myUrls4Channels = new QString[4];
     QString *myUrls16Channels = new QString[16];
 
-    rtspReader *myRtspReaders = new rtspReader[4];
+    rtspReader *myRtspReaders = new rtspReader[20];
 
     void playStreams(int tabIndex);
     void stopStreams(int tabIndex);

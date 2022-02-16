@@ -8,7 +8,9 @@ A Qt-based cross-platform RTSP stream viewer.
 
 ## OpenCV Installation and Reference
 
-It turns out that installaton of OpenCV is a big headache.
+* It turns out that installaton of OpenCV is a big headache.
+* Seems bugs are not uncommon in OpenCV--at least try avoiding the latest-dev version.
+* OpenCV 3.4.16 is used.
 
 ### References
 
@@ -23,18 +25,13 @@ The exact process is not exactly the same as any of the links...
 
 #### Linux
 
-* [Installation in Linux](https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html)
+* [Installation in Linux](https://docs.opencv.org/4.5.5/d7/d9f/tutorial_linux_install.html)
 
-Check
+##### Find out the right way to add references
 
-To check available libraries installed, run 
-
-```
-pkg-config --libs opencv4
-```
-
-Sample results
+* To check available libraries installed, run `pkg-config --libs opencv`
+* Sample results
 
 ```
--lopencv_stitching -lopencv_alphamat -lopencv_aruco -lopencv_bgsegm -lopencv_bioinspired -lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dnn_superres -lopencv_dpm -lopencv_face -lopencv_freetype -lopencv_fuzzy -lopencv_hdf -lopencv_hfs -lopencv_img_hash -lopencv_intensity_transform -lopencv_line_descriptor -lopencv_mcc -lopencv_quality -lopencv_rapid -lopencv_reg -lopencv_rgbd -lopencv_saliency -lopencv_shape -lopencv_stereo -lopencv_structured_light -lopencv_phase_unwrapping -lopencv_superres -lopencv_optflow -lopencv_surface_matching -lopencv_tracking -lopencv_highgui -lopencv_datasets -lopencv_text -lopencv_plot -lopencv_ml -lopencv_videostab -lopencv_videoio -lopencv_viz -lopencv_ximgproc -lopencv_video -lopencv_dnn -lopencv_xobjdetect -lopencv_objdetect -lopencv_calib3d -lopencv_imgcodecs -lopencv_features2d -lopencv_flann -lopencv_xphoto -lopencv_photo -lopencv_imgproc -lopencv_core
+-L/usr/local/lib -lopencv_dnn -lopencv_highgui -lopencv_ml -lopencv_objdetect -lopencv_shape -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_videoio -lopencv_imgcodecs -lopencv_features2d -lopencv_video -lopencv_photo -lopencv_imgproc -lopencv_flann -lopencv_core
 ```

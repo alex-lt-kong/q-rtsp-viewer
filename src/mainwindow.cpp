@@ -46,22 +46,40 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 */
 
-    /*ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+  /*  ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel01->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel10->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
-    ui->label4Channel11->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
-
+    ui->label4Channel11->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );*/
+/*
     ui->label4Channel00->setScaledContents(true);
     ui->label4Channel01->setScaledContents(true);
     ui->label4Channel10->setScaledContents(true);
     ui->label4Channel11->setScaledContents(true);
-    // Seems we canNOT set it! it causes a segmentfault, 100% of the time...
-    */
+ Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault*/
 
-    myRtspReaders[0].setLabel(ui->label4Channel00);
-    myRtspReaders[1].setLabel(ui->label4Channel01);
-    myRtspReaders[2].setLabel(ui->label4Channel10);
-    myRtspReaders[3].setLabel(ui->label4Channel11);
+
+    int idx = 0;
+    myRtspReaders[idx++].setLabel(ui->label4Channel00);
+    myRtspReaders[idx++].setLabel(ui->label4Channel01);
+    myRtspReaders[idx++].setLabel(ui->label4Channel10);
+    myRtspReaders[idx++].setLabel(ui->label4Channel11);
+
+    myRtspReaders[idx++].setLabel(ui->label16Channel00);
+    myRtspReaders[idx++].setLabel(ui->label16Channel01);
+    myRtspReaders[idx++].setLabel(ui->label16Channel02);
+    myRtspReaders[idx++].setLabel(ui->label16Channel03);
+    myRtspReaders[idx++].setLabel(ui->label16Channel10);
+    myRtspReaders[idx++].setLabel(ui->label16Channel11);
+    myRtspReaders[idx++].setLabel(ui->label16Channel12);
+    myRtspReaders[idx++].setLabel(ui->label16Channel13);
+    myRtspReaders[idx++].setLabel(ui->label16Channel20);
+    myRtspReaders[idx++].setLabel(ui->label16Channel21);
+    myRtspReaders[idx++].setLabel(ui->label16Channel22);
+    myRtspReaders[idx++].setLabel(ui->label16Channel23);
+    myRtspReaders[idx++].setLabel(ui->label16Channel30);
+    myRtspReaders[idx++].setLabel(ui->label16Channel31);
+    myRtspReaders[idx++].setLabel(ui->label16Channel32);
+    myRtspReaders[idx++].setLabel(ui->label16Channel33);
 
     srand (time(NULL));
     this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
@@ -117,7 +135,9 @@ void MainWindow::stopStreams(int tabIndex) {
             myRtspReaders[i].stop();
         }
     } else {
-
+        for (int i = 0; i < 16; i ++) {
+            myRtspReaders[4+i].stop();
+        }
     }
     return;
 }
@@ -127,33 +147,18 @@ void MainWindow::playStreams(int tabIndex) {
 
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
-            myRtspReaders[i].setRtspUrl(QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
+            myRtspReaders[i].setRtspUrl(
+                        QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
             if (myRtspReaders[i].isRunning() == false) {
                 myRtspReaders[i].start();
             }
         }
     } else {
-
-    }
-    return;
-
-    if (tabIndex == 0) {
-        for (int i = 0; i < 4; i ++) {
-            cout << this->ui->comboBoxDomainNames->currentText().toStdString() << endl;
-            myVideoPlayers[i].setSource(QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
-            if (myVideoPlayers[i].playbackState() != QMediaPlayer::PlayingState) {
-                myVideoPlayers[i].play();
-                cout << "Start playing: " << myVideoPlayers[i].source().toString().toStdString() << endl;
-            }
-            // QString is replace()'ed inplace, therefore, we need to do QString(QString).replace()
-            // so that we only manipulate its copy.
-        }
-    } else {
         for (int i = 0; i < 16; i ++) {
-            myVideoPlayers[4+i].setSource(QString(myUrls16Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()));
-            if (myVideoPlayers[4+i].playbackState() != QMediaPlayer::PlayingState) {
-                myVideoPlayers[4+i].play();
-                cout << "Start playing: " << myVideoPlayers[4+i].source().toString().toStdString() << endl;
+            myRtspReaders[4+i].setRtspUrl(
+                        QString(myUrls16Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
+            if (myRtspReaders[4+i].isRunning() == false) {
+                myRtspReaders[4+i].start();
             }
         }
     }

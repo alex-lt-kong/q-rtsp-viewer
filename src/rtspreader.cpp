@@ -44,16 +44,13 @@ void rtspReader::run()
 
         if(this->frame.empty())
             continue;
+        if (this->label->width() < 30 || this->label->height() < 30)
+            continue;
 
-//        this->resizedFrame = this->frame;
-        this->frame.copyTo(this->resizedFrame);
+        cv::resize(this->frame, this->frame, cv::Size(this->label->width() - 3, this->label->height() - 3));
 
-        cout << "frame.cols: " << frame.cols << ", frame.rows " << frame.rows << endl;
-        //cv::resize(this->frame, this->resizedFrame, cv::Size(640, 480));
 
-        cout << "resized.cols: " << this->resizedFrame.cols << ", resized.rows " << this->resizedFrame.rows << endl;
-
-        QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)this->resizedFrame.data, this->resizedFrame.cols, this->resizedFrame.rows, this->resizedFrame.step, QImage::Format_BGR888));
+        QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)this->frame.data, this->frame.cols, this->frame.rows, this->frame.step, QImage::Format_BGR888));
         cout << thread()->currentThreadId() <<
                 ": pixmap.isNull(): " << pixmap.isNull() <<                
                 ", pixmap.height(): " << pixmap.height() << ", pixmap.width(): " << pixmap.width() <<
@@ -61,6 +58,7 @@ void rtspReader::run()
                 ", this->label->height(): " << this->label->height() <<
                 ", this->label->width(): " << this->label->width() << endl;
         this->label->setPixmap(pixmap);
-     //  this->label->setPixmap(pixmap.scaled(this->label->width(), this->label->width(), Qt::AspectRatioMode::IgnoreAspectRatio));
+        //this->label->setPixmap(pixmap.scaled(this->frame.cols, this->frame.rows, Qt::AspectRatioMode::IgnoreAspectRatio));
+        // Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault
     }
 }
