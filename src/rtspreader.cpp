@@ -45,15 +45,17 @@ void rtspReader::run()
         if(this->frame.empty())
             continue;
 
-        Mat resized;
-       // resize(this->frame, resized, Size(240, 320));
+//        this->resizedFrame = this->frame;
+        this->frame.copyTo(this->resizedFrame);
 
-        QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888));
+        cout << "frame.cols: " << frame.cols << ", frame.rows " << frame.rows << endl;
+        //cv::resize(this->frame, this->resizedFrame, cv::Size(640, 480));
 
+        cout << "resized.cols: " << this->resizedFrame.cols << ", resized.rows " << this->resizedFrame.rows << endl;
 
+        QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)this->resizedFrame.data, this->resizedFrame.cols, this->resizedFrame.rows, this->resizedFrame.step, QImage::Format_BGR888));
         cout << thread()->currentThreadId() <<
-                ": pixmap.isNull(): " << pixmap.isNull() <<
-                ", frame.cols: " << frame.cols << ", frame.rows " << frame.rows <<
+                ": pixmap.isNull(): " << pixmap.isNull() <<                
                 ", pixmap.height(): " << pixmap.height() << ", pixmap.width(): " << pixmap.width() <<
                 ", pixmap.isQBitmap(): " << pixmap.isQBitmap() <<
                 ", this->label->height(): " << this->label->height() <<
