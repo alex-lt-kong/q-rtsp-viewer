@@ -46,7 +46,7 @@ void rtspReader::run()
             continue;
 
         Mat resized;
-        //resize(this->frame, resized, Size(this->label->width(), this->label->height()));
+       // resize(this->frame, resized, Size(240, 320));
 
         QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888));
 

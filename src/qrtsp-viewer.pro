@@ -32,8 +32,8 @@ win32 {
 }
 
 unix{
-    LIBS += -lopencv_videostab -lopencv_videoio -lopencv_core
-    # equal to g++ -lopencv_videostab -lopencv_videoio -lopencv_core
+    LIBS += -lopencv_core -lopencv_videoio -lopencv_video -lopencv_imgproc
+    # equal to g++ -lopencv_core -lopencv_videoio -lopencv_video -lopencv_imgproc
     INCLUDEPATH += /usr/local/include/opencv4
     # equal to g++ -I/usr/local/include/opencv4
 }
