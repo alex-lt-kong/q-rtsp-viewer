@@ -50,19 +50,9 @@ void rtspReader::run()
             continue;
 
         cv::resize(this->frame, this->frame, cv::Size(this->label->width() - 3, this->label->height() - 3));
-        //this->mutex.lock();
-        //QImage image = QImage(
-         //           (uchar*)this->frame.data,
-          //          this->frame.cols, this->frame.rows, this->frame.step, QImage::Format_BGR888,
-           //         nullptr);
-        //image.scanLine(0);
+
         qDebug() << "ThreadID from the caller: " << thread()->currentThreadId();
         emit newFrameReceived(frame, this->label);
-        //image.bits();
-        //this->pixmap = QPixmap::fromImage(image.copy());
-        //this->label->setPixmap(this->pixmap);
-        //this->mutex.unlock();
-        //this->label->setPixmap(pixmap.scaled(this->frame.cols, this->frame.rows, Qt::AspectRatioMode::IgnoreAspectRatio));
-        // Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault
+        // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
     }
 }

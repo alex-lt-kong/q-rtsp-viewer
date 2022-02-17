@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     myRtspReaders[idx++].setLabel(ui->label16Channel33);
 
     for (int i = 0; i < 20; i ++) {
+        // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
         connect(&myRtspReaders[i], SIGNAL(newFrameReceived(Mat,QLabel*)),
                               SLOT(newFrameReceived(Mat,QLabel*)));
         connect(&myRtspReaders[i], SIGNAL(finished()),
