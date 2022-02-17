@@ -45,8 +45,10 @@ void rtspReader::run()
     while (this->stopSignal == false) {
         vc >> this->frame;
 
-        if(this->frame.empty())
+        if(this->frame.empty()) {
+            cout << "empty frame received" << endl;
             continue;
+        }
         emit sendNewFrame(frame, this->label);
     }
     cout << "RTSP stream loop stopped gracefully!" << endl;
