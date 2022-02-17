@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <rtspreader.h>
 #include <QThread>
+#include <QDialog>
 
 using namespace std;
 
@@ -96,15 +97,17 @@ void MainWindow::loadSettings() {
         settings.setArrayIndex(i);
         this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
     }
-    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
     this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
+    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
+    on_comboBoxDomainNames_currentIndexChanged1(0);
     /*
         Note this design:
         1. No slot is predefined in Qt Designer;
         2. Load comboBoxDomainNames values from settings file--no slot event will be triggered;
-        3. Enable slot NOW;
-        4. then we pick a random item, so that it triggers the slot only once.
-
+        3. then we pick a random item, so that it triggers the slot only once.
+        4. Enable slot;
+        How about we swap the order of 3 and 4? No, if the same value is randomly picked, then the event
+        will NOT be triggered!
     */
     settings.endArray();
 }
@@ -128,8 +131,9 @@ void MainWindow::onNewFrameReceived(Mat frame, QLabel *label) {
 
     QImage image = QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
     QPixmap pixmap = QPixmap::fromImage(image);
-    label->setPixmap(pixmap.scaled(label->width(), label->height(), Qt::IgnoreAspectRatio));
-   // qDebug() << "ThreadID from the callee: " << thread()->currentThreadId();
+    label->setPixmap(pixmap.scaled(label->width() > 1 ? label->width() - 1: 1,
+                                   label->height() > 1 ? label->height() - 1: 1,
+                                   Qt::IgnoreAspectRatio));
 }
 
 void MainWindow::stopStreams(int tabIndex, bool wait) {
@@ -163,8 +167,6 @@ void MainWindow::stopStreams(int tabIndex, bool wait) {
 }
 
 void MainWindow::playStreams(int tabIndex) {
-
-
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
             myRtspReaders[i].setRtspUrl(QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
@@ -215,3 +217,4 @@ void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
         playStreams(1);
     }
 }
+

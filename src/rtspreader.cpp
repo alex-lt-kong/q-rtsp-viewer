@@ -23,7 +23,6 @@ void rtspReader::setRtspUrl(string url) {
 
 void rtspReader::setLabel(QLabel *label) {
     this->label = label;
-
 }
 
 void rtspReader::stop() {
@@ -40,8 +39,9 @@ void rtspReader::run()
     VideoCapture vc = VideoCapture();
     vc.set(CV_CAP_PROP_BUFFERSIZE, 1);
     // internal buffer will now store only 1 frames to minimize loading
+    cout << this->url << ": opening" << endl;
     vc.open(this->url);
-
+    cout << this->url << ": opened" << endl;
     while (this->stopSignal == false) {
         vc >> this->frame;
 
