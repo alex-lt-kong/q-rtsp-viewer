@@ -7,6 +7,7 @@
 #include <QLabel>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <QMutex>
 
 using namespace std;
 using namespace cv;
@@ -27,9 +28,13 @@ protected:
 
 private:
     string url = "";
-    QLabel *label;
+    QLabel* label;
     bool stopSignal;
     Mat frame;
+    QPixmap pixmap;
+    QMutex mutex;
 
+signals:
+    void newFrameReceived(Mat frame, QLabel *label);
 };
 #endif // RTSPREADER_H

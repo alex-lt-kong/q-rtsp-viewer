@@ -23,6 +23,7 @@ void rtspReader::setRtspUrl(string url) {
 
 void rtspReader::setLabel(QLabel *label) {
     this->label = label;
+
 }
 
 void rtspReader::stop() {
@@ -38,6 +39,7 @@ void rtspReader::run()
         return;
     }
     VideoCapture cap(this->url);
+    cap.set(CV_CAP_PROP_BUFFERSIZE, 2); // internal buffer will now store only 3 frames
 
     while (this->stopSignal == false) {
         cap >> this->frame;
@@ -48,16 +50,18 @@ void rtspReader::run()
             continue;
 
         cv::resize(this->frame, this->frame, cv::Size(this->label->width() - 3, this->label->height() - 3));
-
-
-        QPixmap pixmap = QPixmap::fromImage(QImage((uchar*)this->frame.data, this->frame.cols, this->frame.rows, this->frame.step, QImage::Format_BGR888));
-        cout << thread()->currentThreadId() <<
-                ": pixmap.isNull(): " << pixmap.isNull() <<                
-                ", pixmap.height(): " << pixmap.height() << ", pixmap.width(): " << pixmap.width() <<
-                ", pixmap.isQBitmap(): " << pixmap.isQBitmap() <<
-                ", this->label->height(): " << this->label->height() <<
-                ", this->label->width(): " << this->label->width() << endl;
-        this->label->setPixmap(pixmap);
+        //this->mutex.lock();
+        //QImage image = QImage(
+         //           (uchar*)this->frame.data,
+          //          this->frame.cols, this->frame.rows, this->frame.step, QImage::Format_BGR888,
+           //         nullptr);
+        //image.scanLine(0);
+        qDebug() << "ThreadID from the caller: " << thread()->currentThreadId();
+        emit newFrameReceived(frame, this->label);
+        //image.bits();
+        //this->pixmap = QPixmap::fromImage(image.copy());
+        //this->label->setPixmap(this->pixmap);
+        //this->mutex.unlock();
         //this->label->setPixmap(pixmap.scaled(this->frame.cols, this->frame.rows, Qt::AspectRatioMode::IgnoreAspectRatio));
         // Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault
     }

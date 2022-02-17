@@ -81,9 +81,16 @@ MainWindow::MainWindow(QWidget *parent) :
     myRtspReaders[idx++].setLabel(ui->label16Channel32);
     myRtspReaders[idx++].setLabel(ui->label16Channel33);
 
+    for (int i = 0; i < 20; i ++) {
+        connect(&myRtspReaders[i], SIGNAL(newFrameReceived(Mat,QLabel*)),
+                              SLOT(newFrameReceived(Mat,QLabel*)));
+        connect(&myRtspReaders[i], SIGNAL(finished()),
+                &myRtspReaders[i], SLOT(deleteLater()));
+    }
+
     srand (time(NULL));
     this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
-    on_tabWidget_currentChanged(0);
+   // on_tabWidget_currentChanged(0);
 }
 
 void MainWindow::loadSettings() {
@@ -97,7 +104,7 @@ void MainWindow::loadSettings() {
     }
     settings.endArray();
 
-    size = settings.beginReadArray("4ChannelUrls");
+    size = settings.beginReadArray("4ChanlabelnelUrls");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
         myUrls4Channels[i] = settings.value("Url").toString();
@@ -126,6 +133,19 @@ MainWindow::~MainWindow()
     delete[] myRtspReaders;
 
     delete ui;
+}
+
+void MainWindow::newFrameReceived(Mat frame, QLabel *label) {
+    if (label == nullptr) {
+        return;
+    }
+    QImage image = QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
+    QPixmap pixmap = QPixmap::fromImage(image);
+    label->setPixmap(pixmap);
+    qDebug() << "ThreadID from the callee: " << thread()->currentThreadId();
+    //this->mutex.unlock();
+    //this->label->setPixmap(pixmap.scaled(this->frame.cols, this->frame.rows, Qt::AspectRatioMode::IgnoreAspectRatio));
+    // Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault
 }
 
 void MainWindow::stopStreams(int tabIndex) {

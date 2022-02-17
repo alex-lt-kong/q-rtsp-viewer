@@ -36,6 +36,9 @@ private:
     void playStreams(int tabIndex);
     void stopStreams(int tabIndex);
     void loadSettings();
+
+public slots:
+    void newFrameReceived(Mat frame, QLabel *label);
 };
 
 #endif // MAINWINDOW_H
