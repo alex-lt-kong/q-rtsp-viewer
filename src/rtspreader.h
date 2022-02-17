@@ -35,6 +35,6 @@ private:
     QMutex mutex;
 
 signals:
-    void newFrameReceived(Mat frame, QLabel *label);
+    void sendNewFrame(Mat frame, QLabel *label);
 };
 #endif // RTSPREADER_H

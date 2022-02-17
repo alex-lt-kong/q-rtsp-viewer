@@ -33,26 +33,21 @@ void rtspReader::stop() {
 void rtspReader::run()
 {
     this->stopSignal = false;
-    cout << "rtspReader opening: " << this->url << endl;
     if (this->url == ""){
-        cout << "returned??" << endl;
+        cout << "this->url is EMPTY, returned;" << endl;
         return;
     }
-    VideoCapture cap(this->url);
-    cap.set(CV_CAP_PROP_BUFFERSIZE, 2); // internal buffer will now store only 3 frames
+    VideoCapture vc = VideoCapture();
+    vc.set(CV_CAP_PROP_BUFFERSIZE, 1);
+    // internal buffer will now store only 1 frames to minimize loading
+    vc.open(this->url);
 
     while (this->stopSignal == false) {
-        cap >> this->frame;
+        vc >> this->frame;
 
         if(this->frame.empty())
             continue;
-        if (this->label->width() < 30 || this->label->height() < 30)
-            continue;
-
-        cv::resize(this->frame, this->frame, cv::Size(this->label->width() - 3, this->label->height() - 3));
-
-        qDebug() << "ThreadID from the caller: " << thread()->currentThreadId();
-        emit newFrameReceived(frame, this->label);
-        // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
+        emit sendNewFrame(frame, this->label);
     }
+    cout << "RTSP stream loop stopped gracefully!" << endl;
 }

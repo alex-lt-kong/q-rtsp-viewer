@@ -21,24 +21,22 @@ public:
 private slots:
     void on_pushButtonExit_clicked();
     void on_tabWidget_currentChanged(int index);
-    void on_comboBoxDomainNames_currentIndexChanged(int index);
+   void on_comboBoxDomainNames_currentIndexChanged1(int index);
 
 private:
     Ui::MainWindow *ui;
     int channelCount = 20;
-    QVideoWidget *myVideoWidgets = new QVideoWidget[20];
-    QMediaPlayer *myVideoPlayers = new QMediaPlayer[20];
     QString *myUrls4Channels = new QString[4];
     QString *myUrls16Channels = new QString[16];
 
     rtspReader *myRtspReaders = new rtspReader[20];
-
+    void showEvent(QShowEvent* event);
     void playStreams(int tabIndex);
-    void stopStreams(int tabIndex);
+    void stopStreams(int tabIndex, bool wait);
     void loadSettings();
 
 public slots:
-    void newFrameReceived(Mat frame, QLabel *label);
+    void onNewFrameReceived(Mat frame, QLabel *label);
 };
 
 #endif // MAINWINDOW_H

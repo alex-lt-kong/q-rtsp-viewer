@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QDebug>
 #include <rtspreader.h>
+#include <QThread>
 
 using namespace std;
 
@@ -17,45 +18,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     loadSettings();
 
-    /*int idx = 0;
-
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],0,0,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],0,1,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],0,2,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],0,3,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],1,0,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],1,1,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],1,2,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],1,3,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],2,0,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],2,1,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],2,2,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],2,3,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],3,0,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],3,1,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],3,2,1,1);
-    this->ui->gridLayout16Channels->addWidget(&myVideoWidgets[idx++],3,3,1,1);
-
-    for (int i = 0; i < channelCount; i ++) {
-        myVideoWidgets[i].setAspectRatioMode(Qt::AspectRatioMode::IgnoreAspectRatio);
-        myVideoPlayers[i].setPlaybackRate(0);
-        // Without this, fream will freeze if we play() after stop()
-        myVideoPlayers[i].setVideoOutput(&myVideoWidgets[i]);
-    }
-*/
-
-  /*  ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+    ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel01->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel10->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
-    ui->label4Channel11->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );*/
-/*
+    ui->label4Channel11->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
+
     ui->label4Channel00->setScaledContents(true);
     ui->label4Channel01->setScaledContents(true);
     ui->label4Channel10->setScaledContents(true);
     ui->label4Channel11->setScaledContents(true);
- Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault*/
+ /*Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault*/
 
 
     int idx = 0;
@@ -83,52 +58,65 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < 20; i ++) {
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
-        connect(&myRtspReaders[i], SIGNAL(newFrameReceived(Mat,QLabel*)),
-                              SLOT(newFrameReceived(Mat,QLabel*)));
-        connect(&myRtspReaders[i], SIGNAL(finished()),
-                &myRtspReaders[i], SLOT(deleteLater()));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(Mat,QLabel*)), SLOT(onNewFrameReceived(Mat,QLabel*)));
     }
-
     srand (time(NULL));
-    this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
-   // on_tabWidget_currentChanged(0);
+
+    //on_tabWidget_currentChanged(0);
+}
+
+void MainWindow::showEvent( QShowEvent* event ) {
+
+    QWidget::showEvent( event );
+    // the code below will be executed AFTER the MainWindow is shown
+
 }
 
 void MainWindow::loadSettings() {
 
     QSettings settings("ak-studio", "qrtsp-viewer");
 
-    int size = settings.beginReadArray("DomainNames");
-    for (int i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
-    }
-    settings.endArray();
-
-    size = settings.beginReadArray("4ChannelUrls");
+    int size = settings.beginReadArray("4ChannelUrls");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
         myUrls4Channels[i] = settings.value("Url").toString();
     }
     settings.endArray();
+
+
     size = settings.beginReadArray("16ChannelUrls");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
         myUrls16Channels[i] = settings.value("Url").toString();
     }
     settings.endArray();
+
+    size = settings.beginReadArray("DomainNames");
+    for (int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
+    }
+    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
+    this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
+    /*
+        Note this design:
+        1. No slot is predefined in Qt Designer;
+        2. Load comboBoxDomainNames values from settings file--no slot event will be triggered;
+        3. Enable slot NOW;
+        4. then we pick a random item, so that it triggers the slot only once.
+
+    */
+    settings.endArray();
 }
 
 MainWindow::~MainWindow()
 {
-    stopStreams(0);
-    stopStreams(1);
+    stopStreams(0, true);
+    stopStreams(1, true);
 
     // Although the heap will be cleared by OS anyway,
     // it is still a good practice to delete[] then yourself!
     // (And not doing so results in a SegmentFault...)
-    delete[] myVideoPlayers;
-    delete[] myVideoWidgets;
     delete[] myUrls4Channels;
     delete[] myUrls16Channels;
     delete[] myRtspReaders;
@@ -136,31 +124,42 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::newFrameReceived(Mat frame, QLabel *label) {
-    if (label == nullptr) {
-        return;
-    }
+void MainWindow::onNewFrameReceived(Mat frame, QLabel *label) {
+
     QImage image = QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
     QPixmap pixmap = QPixmap::fromImage(image);
-    label->setPixmap(pixmap);
-    qDebug() << "ThreadID from the callee: " << thread()->currentThreadId();
-    //this->mutex.unlock();
-    //this->label->setPixmap(pixmap.scaled(this->frame.cols, this->frame.rows, Qt::AspectRatioMode::IgnoreAspectRatio));
-    // Using Qt's native scaled() function appears to be buggy--occasionally causes segmentation fault
+    label->setPixmap(pixmap.scaled(label->width(), label->height(), Qt::IgnoreAspectRatio));
+   // qDebug() << "ThreadID from the callee: " << thread()->currentThreadId();
 }
 
-void MainWindow::stopStreams(int tabIndex) {
+void MainWindow::stopStreams(int tabIndex, bool wait) {
 
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
             myRtspReaders[i].stop();
         }
+        if (wait) {
+            for (int i = 0; i < 4; i ++) {
+                myRtspReaders[i].wait();
+            }
+        }
     } else {
         for (int i = 0; i < 16; i ++) {
             myRtspReaders[4+i].stop();
         }
+        if (wait) {
+            for (int i = 0; i < 16; i ++) {
+                myRtspReaders[4+i].wait();
+            }
+        }
     }
-    return;
+    /*
+    wait() Blocks the thread until either of these conditions is met:
+        * The thread associated with this QThread object has finished execution (i.e. when it returns from run()).
+          This function will return true if the thread has finished. It also returns true if the thread has not been started yet.
+        * The deadline is reached. This function will return false if the deadline is reached.
+
+    */
 }
 
 void MainWindow::playStreams(int tabIndex) {
@@ -168,19 +167,15 @@ void MainWindow::playStreams(int tabIndex) {
 
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
-            myRtspReaders[i].setRtspUrl(
-                        QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
-            if (myRtspReaders[i].isRunning() == false) {
-                myRtspReaders[i].start();
-            }
+            myRtspReaders[i].setRtspUrl(QString(myUrls4Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
+            myRtspReaders[i].start();
+            // according to this link: https://www.qtcentre.org/threads/6548-Multiple-start()-on-same-QThread-Object
+            // if you start() a running thread, it does nothing...
         }
     } else {
         for (int i = 0; i < 16; i ++) {
-            myRtspReaders[4+i].setRtspUrl(
-                        QString(myUrls16Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
-            if (myRtspReaders[4+i].isRunning() == false) {
-                myRtspReaders[4+i].start();
-            }
+            myRtspReaders[4+i].setRtspUrl(QString(myUrls16Channels[i]).replace("[domain-name]", this->ui->comboBoxDomainNames->currentText()).toStdString());
+            myRtspReaders[4+i].start();
         }
     }
 }
@@ -196,30 +191,27 @@ void MainWindow::on_pushButtonExit_clicked()
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     if (index == 0) {
-        stopStreams(1);
+        stopStreams(1, false);
         playStreams(0);
     }
     else {
-        stopStreams(0);
+        stopStreams(0, false);
         playStreams(1);
     }
 }
 
 
-void MainWindow::on_comboBoxDomainNames_currentIndexChanged(int index)
+void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
 {
-    return;
-    cout << this->ui->comboBoxDomainNames->currentText().toStdString() << endl;
-    if (this->ui->tabWidget->currentIndex() == 0) {
-        stopStreams(0);
-        stopStreams(1);
+    stopStreams(0, this->ui->tabWidget->currentIndex() == 0);
+    stopStreams(1, this->ui->tabWidget->currentIndex() == 1);
+    // we want to stop both since if the user change the selected domain name
+    // the program should reload the RTSP stream from the new domain name
 
+    if (this->ui->tabWidget->currentIndex() == 0) {
         playStreams(0);
     }
     else {
-        stopStreams(0);
-        stopStreams(1);
-
         playStreams(1);
     }
 }
