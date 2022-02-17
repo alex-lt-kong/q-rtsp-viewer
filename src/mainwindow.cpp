@@ -104,7 +104,7 @@ void MainWindow::loadSettings() {
     }
     settings.endArray();
 
-    size = settings.beginReadArray("4ChanlabelnelUrls");
+    size = settings.beginReadArray("4ChannelUrls");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
         myUrls4Channels[i] = settings.value("Url").toString();
