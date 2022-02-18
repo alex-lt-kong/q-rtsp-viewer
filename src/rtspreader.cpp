@@ -63,9 +63,11 @@ void rtspReader::run()
 
         if(this->frame.empty()) {
             this->emptyFrameCount ++;
-            if (this->emptyFrameCount % (long)pow(10, this->emptyFrameWarningThrottle) == 0) {
+            if (this->emptyFrameCount % (long long int)pow(10, this->emptyFrameWarningThrottle) == 0) {
                 this->emptyFrameWarningThrottle ++;
-                cout << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " << (long)pow(10, this->emptyFrameWarningThrottle) << " messages)\n";
+                cout << this->label->toolTip().toStdString() << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
+                        (long long int)pow(10, this->emptyFrameWarningThrottle) << " messages), ";
+                cout << "cv::isOpened(): " << vc.isOpened() << endl;
             }
             continue;
         }

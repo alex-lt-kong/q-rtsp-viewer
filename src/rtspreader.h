@@ -31,7 +31,7 @@ private:
     bool stopSignal;
     Mat frame;
     QPixmap pixmap;
-    long emptyFrameCount;
+    long long int emptyFrameCount; // seems long is from -2,147,483,648 to 2,147,483,647
     int emptyFrameWarningThrottle;
 
     string getVideoCaptureBackend(VideoCapture vc);
