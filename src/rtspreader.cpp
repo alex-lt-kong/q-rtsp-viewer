@@ -82,15 +82,14 @@ void rtspReader::run()
                 this->emptyFrameWarningThrottle *= 2;
                 cout << this->labelName << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
                         this->emptyFrameWarningThrottle << " messages), " <<
-                       "vc::isOpened(): " << cap.isOpened() << endl;
-
-                if (this->emptyFrameCount % 100 == 0) {
-                    QThread::sleep(10);
-                    cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again! (" << this->capOpenCount << ")";
-                    cap.release();
-                    cap.open(this->url);
-                    this->capOpenCount ++;
-                }
+                       "vc::isOpened(): " << cap.isOpened() << endl;             
+            }
+            if (this->emptyFrameCount % 100 == 0) {
+                QThread::sleep(10);
+                cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again! (" << this->capOpenCount << ")";
+                cap.release();
+                cap.open(this->url);
+                this->capOpenCount ++;
             }
             continue;            
         }

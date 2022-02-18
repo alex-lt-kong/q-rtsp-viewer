@@ -34,7 +34,7 @@ private:
     QPixmap pixmap;
     long long int emptyFrameCount; // seems long is from -2,147,483,648 to 2,147,483,647
     long long int iterationCount;
-    int emptyFrameWarningThrottle;
+    long long int emptyFrameWarningThrottle;
     int capOpenCount;
 
     string getVideoCaptureBackend(VideoCapture vc);
