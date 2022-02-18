@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
         connect(&myRtspReaders[i], SIGNAL(sendNewFrame(Mat,QLabel*)), SLOT(onNewFrameReceived(Mat,QLabel*)));
     }
-    srand (time(NULL));
+
 
     //on_tabWidget_currentChanged(0);
     cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
@@ -99,9 +99,10 @@ void MainWindow::loadSettings() {
         settings.setArrayIndex(i);
         this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
     }
+    srand (time(NULL));
     this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
-    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged);
-    on_comboBoxDomainNames_currentIndexChanged(0);
+    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
+    on_comboBoxDomainNames_currentIndexChanged1(0);
     /*
         Note this design:
         1. No slot is predefined in Qt Designer;
@@ -210,7 +211,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 }
 
 
-void MainWindow::on_comboBoxDomainNames_currentIndexChanged(int index)
+void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
 {
     stopStreams(0, this->ui->tabWidget->currentIndex() == 0);
     stopStreams(1, this->ui->tabWidget->currentIndex() == 1);

@@ -21,7 +21,7 @@ public:
 private slots:
     void on_pushButtonExit_clicked();
     void on_tabWidget_currentChanged(int index);
-    void on_comboBoxDomainNames_currentIndexChanged(int index);
+    void on_comboBoxDomainNames_currentIndexChanged1(int index);
 
 
 private:

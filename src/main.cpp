@@ -9,12 +9,13 @@ int main(int argc, char *argv[])
     QStringList argList = QCoreApplication::arguments();
 
     MainWindow w;
-
+    w.showMaximized();
+    /*
     if (argList.contains("--maximized")) { w.showMaximized(); }
     else if (argList.contains("--help")) { std::cout << "Parameters:\n\t"
                                                         "--maximized:\tOpen Screen in mode Maximized"
                                                         "" << std::endl; exit(0); }
-    else { w.show(); }
+    else { w.show(); }*/
 
     return a.exec();
 }
