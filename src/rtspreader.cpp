@@ -96,9 +96,12 @@ void rtspReader::run()
             }
             continue;            
         }
-        this->capOpenCount = 0;
-        // we intentionally reset the counter to make the program more robust from a user's
-        // perspective.
+        // this->capOpenCount = 0;
+        // seems we can't reset if frame.empty() == false. the reason is that,
+        // suppose an opened cap loses connection and fails to open again,
+        // cap.read(frame) may just skip instead of writting empty data to
+        // frame, so the program always resets the counter even it means to
+        // quit.
         emit sendNewFrame(frame, this->label);
     }
     cap.release();
