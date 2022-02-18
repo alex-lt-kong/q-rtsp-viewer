@@ -46,6 +46,7 @@ string rtspReader::getVideoCaptureBackend(VideoCapture vc) {
 void rtspReader::run()
 {
     this->stopSignal = false;
+    this->iterationCount = 0;
     this->emptyFrameCount = 0;
     this->emptyFrameWarningThrottle = 0;
     this->capOpenCount = 0;
@@ -63,7 +64,7 @@ void rtspReader::run()
     // need to have a manual flush here, otherwise, sometimes the opened line won't be dispalyed
 
     while (this->stopSignal == false) {
-
+        this->iterationCount ++;
         if (this->capOpenCount > 10) {
             Mat m;
             cout << this->labelName << ": Too many failed attempts, leaving the loop..." << endl;
@@ -78,15 +79,12 @@ void rtspReader::run()
             this->emptyFrameCount ++;
             if (this->emptyFrameCount % (long long int)pow(10, this->emptyFrameWarningThrottle) == 0) {
                 this->emptyFrameWarningThrottle ++;
+                this->emptyFrameWarningThrottle *= 2;
                 cout << this->labelName << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
-                        (long long int)pow(10, this->emptyFrameWarningThrottle) << " messages), " <<
+                        this->emptyFrameWarningThrottle << " messages), " <<
                        "vc::isOpened(): " << cap.isOpened() << endl;
 
-                if (cap.isOpened() == false) {
-                    cout << this->labelName << ": cap unexpectedly closed, reopening...";
-                    cap.open(this->url);
-                    this->capOpenCount ++;
-                } else if (this->emptyFrameCount % 100 == 0) {
+                if (this->emptyFrameCount % 100 == 0) {
                     QThread::sleep(10);
                     cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again!" << endl;
                     cap.release();
@@ -96,12 +94,25 @@ void rtspReader::run()
             }
             continue;            
         }
+        if (this->iterationCount % 1000 == 0 && cap.isOpened() == false) {
+            // we shouldn't check this only when frame.empty() == ture,
+            // it is possible that cap.isOpened() == false so that cap
+            // just skips cap.read() instead of writing nothing into frame
+            // meaning that frame keeps its last valid snapshot forever.
+            cout << this->labelName << ": cap unexpectedly closed, reopening...";
+            QThread::sleep(10);
+            cap.open(this->url);
+            this->capOpenCount ++;
+        }
         // this->capOpenCount = 0;
-        // seems we can't reset if frame.empty() == false. the reason is that,
-        // suppose an opened cap loses connection and fails to open again,
-        // cap.read(frame) may just skip instead of writting empty data to
-        // frame, so the program always resets the counter even it means to
-        // quit.
+        /* seems we can't reset if frame.empty() == false. the reason is that,
+         * suppose an opened cap loses connection and fails to open again,
+         * cap.read(frame) may just skip instead of writting empty data to
+         * frame, so the program always resets the counter even it means to
+         * quit. Worse still, the thread may be stuck in a dead loop where
+         * vap.isOpened() == false and frame.empty() == false, so the thread
+         * keep looping for nothing
+         */
         emit sendNewFrame(frame, this->label);
     }
     cap.release();
