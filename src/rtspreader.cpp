@@ -87,7 +87,7 @@ void rtspReader::run()
 
                 if (this->emptyFrameCount % 100 == 0) {
                     QThread::sleep(10);
-                    cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again!" << endl;
+                    cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again! (" << this->capOpenCount << ")";
                     cap.release();
                     cap.open(this->url);
                     this->capOpenCount ++;
@@ -95,12 +95,12 @@ void rtspReader::run()
             }
             continue;            
         }
-        if (this->iterationCount % 1000 == 0 && cap.isOpened() == false) {
+        if (this->iterationCount % 100 == 0 && cap.isOpened() == false) {
             // we shouldn't check this only when frame.empty() == ture,
             // it is possible that cap.isOpened() == false so that cap
             // just skips cap.read() instead of writing nothing into frame
             // meaning that frame keeps its last valid snapshot forever.
-            cout << this->labelName << ": cap unexpectedly closed, reopening...";
+            cout << this->labelName << ": cap unexpectedly closed, reopening...(" << this->capOpenCount << ")";
             QThread::sleep(10);
             cap.open(this->url);
             this->capOpenCount ++;
