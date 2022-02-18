@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/default">
         <file>resources/icon.png</file>
-        <file>resources/loading-image.png</file>
     </qresource>
 </RCC>

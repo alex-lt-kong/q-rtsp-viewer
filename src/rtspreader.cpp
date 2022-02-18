@@ -60,11 +60,11 @@ void rtspReader::run()
     cap.open(this->url);
     this->capOpenCount ++;
     cout <<this->labelName << ": URL " << this->url << ": opened, Backend: " << this->getVideoCaptureBackend(cap) << endl;
-    // need to have a flush here, otherwise, sometimes the opened line won't be flushed
+    // need to have a manual flush here, otherwise, sometimes the opened line won't be dispalyed
 
     while (this->stopSignal == false) {
 
-        if (this->capOpenCount > 1) {
+        if (this->capOpenCount > 2) {
             Mat m;
             cout << this->labelName << ": Too many failed attempts, leaving the loop..." << endl;
             emit sendNewFrame(m, this->label);
@@ -86,17 +86,19 @@ void rtspReader::run()
                     cout << this->labelName << ": cap unexpectedly closed, reopening...";
                     cap.open(this->url);
                     this->capOpenCount ++;
-                } else if (this->emptyFrameCount % 100) {
+                } else if (this->emptyFrameCount % 100 == 0) {
                     QThread::sleep(10);
                     cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again!" << endl;
-                  //  cap.release();
-                  //  cap.open(this->url);
+                    cap.release();
+                    cap.open(this->url);
                     this->capOpenCount ++;
                 }
             }
-            continue;
-            this->capOpenCount = 0;
+            continue;            
         }
+        this->capOpenCount = 0;
+        // we intentionally reset the counter to make the program more robust from a user's
+        // perspective.
         emit sendNewFrame(frame, this->label);
     }
     cap.release();

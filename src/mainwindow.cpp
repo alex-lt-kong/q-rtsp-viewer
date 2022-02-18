@@ -100,8 +100,8 @@ void MainWindow::loadSettings() {
         this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
     }
     this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
-    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
-    on_comboBoxDomainNames_currentIndexChanged1(0);
+    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged);
+    on_comboBoxDomainNames_currentIndexChanged(0);
     /*
         Note this design:
         1. No slot is predefined in Qt Designer;
@@ -210,7 +210,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 }
 
 
-void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
+void MainWindow::on_comboBoxDomainNames_currentIndexChanged(int index)
 {
     stopStreams(0, this->ui->tabWidget->currentIndex() == 0);
     stopStreams(1, this->ui->tabWidget->currentIndex() == 1);
