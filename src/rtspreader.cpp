@@ -54,6 +54,7 @@ void rtspReader::run()
         cout << "this->url is EMPTY, returned;\n";
         return;
     }
+    bool readResult = false;
     VideoCapture cap = VideoCapture();
     cap.set(CV_CAP_PROP_BUFFERSIZE, 2);
     // internal buffer stores only 2 frames to minimize loading
@@ -73,9 +74,9 @@ void rtspReader::run()
             break;
         }
 
-        cap.read(this->frame);
+        readResult = cap.read(this->frame);
 
-        if(this->frame.empty()) {
+        if(readResult == false || this->frame.empty()) {
             this->emptyFrameCount ++;
             if (this->emptyFrameCount % (long long int)pow(10, this->emptyFrameWarningThrottle) == 0) {
                 this->emptyFrameWarningThrottle ++;
