@@ -26,9 +26,9 @@ DISTFILES += \
     README.md
 
 win32 {
-    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_core455.dll.a"
-    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_video455.dll.a"
-    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_videoio455.dll.a"
+    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_core3416.dll.a"
+    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_video3416.dll.a"
+    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_videoio3416.dll.a"
     INCLUDEPATH += C:\lib\build_opencv\install\include
 }
 

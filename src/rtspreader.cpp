@@ -32,6 +32,7 @@ void rtspReader::stop() {
 void rtspReader::run()
 {
     this->stopSignal = false;
+    this->emptyFrameCount = 0;
     if (this->url == ""){
         cout << "this->url is EMPTY, returned;" << endl;
         return;
@@ -46,7 +47,9 @@ void rtspReader::run()
         vc >> this->frame;
 
         if(this->frame.empty()) {
-            cout << "empty frame received" << endl;
+            this->emptyFrameCount ++;
+            if (this->emptyFrameCount % 1000 == 0)
+                cout << "empty frame received, " << this->emptyFrameCount << " in total" << endl;
             continue;
         }
         emit sendNewFrame(frame, this->label);

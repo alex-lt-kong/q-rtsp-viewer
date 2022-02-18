@@ -7,7 +7,6 @@
 #include <QLabel>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include <QMutex>
 
 using namespace std;
 using namespace cv;
@@ -32,7 +31,8 @@ private:
     bool stopSignal;
     Mat frame;
     QPixmap pixmap;
-    QMutex mutex;
+    long emptyFrameCount;
+
 
 signals:
     void sendNewFrame(Mat frame, QLabel *label);
