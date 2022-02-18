@@ -138,6 +138,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel00</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -156,6 +159,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel13</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -176,6 +182,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel11</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -194,6 +203,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel23</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -214,6 +226,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel02</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -232,6 +247,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel03</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -252,6 +270,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel01</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -270,6 +291,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel20</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -290,6 +314,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel10</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -308,6 +335,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel12</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -328,6 +358,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel22</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -346,6 +379,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel21</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -366,6 +402,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel30</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -384,6 +423,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel31</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -404,6 +446,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>label16Channel32</string>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -422,6 +467,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>label16Channel33</string>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>

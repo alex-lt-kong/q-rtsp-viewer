@@ -6,6 +6,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 #include <cmath>
+#include <QThread>
 
 using namespace std;
 using namespace cv;
@@ -24,6 +25,7 @@ void rtspReader::setRtspUrl(string url) {
 
 void rtspReader::setLabel(QLabel *label) {
     this->label = label;
+    this->labelName = this->label->toolTip().toStdString();
 }
 
 void rtspReader::stop() {
@@ -46,32 +48,57 @@ void rtspReader::run()
     this->stopSignal = false;
     this->emptyFrameCount = 0;
     this->emptyFrameWarningThrottle = 0;
+    this->capOpenCount = 0;
     if (this->url == ""){
         cout << "this->url is EMPTY, returned;\n";
         return;
     }
-    VideoCapture vc = VideoCapture();
-    vc.set(CV_CAP_PROP_BUFFERSIZE, 2);
+    VideoCapture cap = VideoCapture();
+    cap.set(CV_CAP_PROP_BUFFERSIZE, 2);
     // internal buffer stores only 2 frames to minimize loading
-    cout << this->url << ": opening\n";
-    vc.open(this->url);
-    cout << this->url << ": opened, Backend: " << this->getVideoCaptureBackend(vc) << endl;
+    cout << this->labelName << ": URL " << this->url << ": opening\n";
+    cap.open(this->url);
+    this->capOpenCount ++;
+    cout <<this->labelName << ": URL " << this->url << ": opened, Backend: " << this->getVideoCaptureBackend(cap) << endl;
     // need to have a flush here, otherwise, sometimes the opened line won't be flushed
 
     while (this->stopSignal == false) {
-        vc >> this->frame;
+
+        if (this->capOpenCount > 1) {
+            Mat m;
+            cout << this->labelName << ": Too many failed attempts, leaving the loop..." << endl;
+            emit sendNewFrame(m, this->label);
+            // here we emit an empty Mat to indicate the loop is about to end;
+            break;
+        }
+
+        cap.read(this->frame);
 
         if(this->frame.empty()) {
             this->emptyFrameCount ++;
             if (this->emptyFrameCount % (long long int)pow(10, this->emptyFrameWarningThrottle) == 0) {
                 this->emptyFrameWarningThrottle ++;
-                cout << this->label->toolTip().toStdString() << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
-                        (long long int)pow(10, this->emptyFrameWarningThrottle) << " messages), ";
-                cout << "cv::isOpened(): " << vc.isOpened() << endl;
+                cout << this->labelName << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
+                        (long long int)pow(10, this->emptyFrameWarningThrottle) << " messages), " <<
+                       "vc::isOpened(): " << cap.isOpened() << endl;
+
+                if (cap.isOpened() == false) {
+                    cout << this->labelName << ": cap unexpectedly closed, reopening...";
+                    cap.open(this->url);
+                    this->capOpenCount ++;
+                } else if (this->emptyFrameCount % 100) {
+                    QThread::sleep(10);
+                    cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again!" << endl;
+                  //  cap.release();
+                  //  cap.open(this->url);
+                    this->capOpenCount ++;
+                }
             }
             continue;
+            this->capOpenCount = 0;
         }
         emit sendNewFrame(frame, this->label);
     }
-    cout << "RTSP stream loop stopped gracefully!\n";
+    cap.release();
+    cout << this->labelName << ": RTSP stream loop stopped gracefully!\n";
 }

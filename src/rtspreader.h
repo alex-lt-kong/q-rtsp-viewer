@@ -27,12 +27,14 @@ protected:
 
 private:
     string url = "";
+    string labelName = "";
     QLabel* label;
     bool stopSignal;
     Mat frame;
     QPixmap pixmap;
     long long int emptyFrameCount; // seems long is from -2,147,483,648 to 2,147,483,647
     int emptyFrameWarningThrottle;
+    int capOpenCount;
 
     string getVideoCaptureBackend(VideoCapture vc);
 

@@ -1,4 +1,4 @@
-000000000000# Q-RTSP-Viewer
+# Q-RTSP-Viewer
 
 A Qt-based cross-platform RTSP stream viewer.
 

@@ -131,11 +131,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::onNewFrameReceived(Mat frame, QLabel *label) {
 
-    QImage image = QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
-    QPixmap pixmap = QPixmap::fromImage(image);
-    label->setPixmap(pixmap.scaled(label->width() > 1 ? label->width() - 1: 1,
-                                   label->height() > 1 ? label->height() - 1: 1,
-                                   Qt::IgnoreAspectRatio));
+    if (frame.empty() == false) {
+        QImage image = QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
+        QPixmap pixmap = QPixmap::fromImage(image);
+        label->setPixmap(pixmap.scaled(label->width() > 1 ? label->width() - 1: 1,
+                                       label->height() > 1 ? label->height() - 1: 1,
+                                       Qt::IgnoreAspectRatio));
+    } else {
+        label->clear();
+        label->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");
+    }
 }
 
 void MainWindow::stopStreams(int tabIndex, bool wait) {
