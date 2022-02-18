@@ -55,8 +55,8 @@ void rtspReader::run()
     // internal buffer stores only 2 frames to minimize loading
     cout << this->url << ": opening\n";
     vc.open(this->url);
-    cout << this->url << ": opened, " <<
-            "Backend: " << this->getVideoCaptureBackend(vc) << '\n';
+    cout << this->url << ": opened, Backend: " << this->getVideoCaptureBackend(vc) << endl;
+    // need to have a flush here, otherwise, sometimes the opened line won't be flushed
 
     while (this->stopSignal == false) {
         vc >> this->frame;
