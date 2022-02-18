@@ -2,9 +2,12 @@
 
 A Qt-based cross-platform RTSP stream viewer.
 
-## Screenshot
+## Screenshots
 
-<img src="./images/screenshot.png">
+* On Windows
+<img src="./images/screenshot-windows.png">
+* On Linux
+<img src="./images/screenshot-linux.png">
 
 ## Deployment
 
