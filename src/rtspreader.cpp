@@ -56,7 +56,7 @@ void rtspReader::run()
     cout << this->url << ": opening\n";
     vc.open(this->url);
     cout << this->url << ": opened \n" <<
-            "Backend: " << this->getVideoCaptureBackend(vc) << endl;
+            "Backend: " << this->getVideoCaptureBackend(vc) << '\n';
 
     while (this->stopSignal == false) {
         vc >> this->frame;
@@ -71,5 +71,5 @@ void rtspReader::run()
         }
         emit sendNewFrame(frame, this->label);
     }
-    cout << "RTSP stream loop stopped gracefully!" << endl;
+    cout << "RTSP stream loop stopped gracefully!\n";
 }

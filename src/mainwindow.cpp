@@ -13,6 +13,7 @@
 #include <QDialog>
 
 using namespace std;
+using namespace cv;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -64,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     srand (time(NULL));
 
     //on_tabWidget_currentChanged(0);
+    cout << "getBuildInformation():\n" <<  cv::getBuildInformation();
 }
 
 void MainWindow::showEvent( QShowEvent* event ) {
