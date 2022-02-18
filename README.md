@@ -10,7 +10,17 @@ A Qt-based cross-platform RTSP stream viewer.
 
 ### Windows
 
-`./Qt/6.2.3/mingw_64/bin/windeployqt.exe --release ./q-rtsp-viewer/releases/Windows_Qt_6_2_3_MinGW_64/`
+Running the Qt's Windows deployment tool `./Qt/6.2.3/mingw_64/bin/windeployqt.exe --release ./q-rtsp-viewer/releases/Windows_Qt_6_2_3_MinGW_64/`
+is not enough lol, you need the follow files to make OpenCV work:
+```
+libopencv_core3416.dll
+libopencv_highgui3416.dll
+libopencv_imgcodecs3416.dll
+libopencv_imgproc3416.dll
+libopencv_videoio3416.dll
+opencv_ffmpeg3416_64.dll
+```
+
 
 ## OpenCV Installation and Reference
 
