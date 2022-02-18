@@ -5,6 +5,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 using namespace cv;
@@ -33,6 +34,7 @@ void rtspReader::run()
 {
     this->stopSignal = false;
     this->emptyFrameCount = 0;
+    this->emptyFrameWarningThrottle = 0;
     if (this->url == ""){
         cout << "this->url is EMPTY, returned;" << endl;
         return;
@@ -48,8 +50,10 @@ void rtspReader::run()
 
         if(this->frame.empty()) {
             this->emptyFrameCount ++;
-            if (this->emptyFrameCount % 1000 == 0)
-                cout << "empty frame received (" << this->emptyFrameCount << " in total)" << endl;
+            if (this->emptyFrameCount % (long)pow(10, this->emptyFrameWarningThrottle) == 0) {
+                this->emptyFrameWarningThrottle ++;
+                cout << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " << (long)pow(10, this->emptyFrameWarningThrottle) << " messages)" << endl;
+            }
             continue;
         }
         emit sendNewFrame(frame, this->label);

@@ -32,6 +32,7 @@ private:
     Mat frame;
     QPixmap pixmap;
     long emptyFrameCount;
+    int emptyFrameWarningThrottle;
 
 
 signals:
