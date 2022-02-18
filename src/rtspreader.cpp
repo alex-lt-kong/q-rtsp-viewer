@@ -30,21 +30,34 @@ void rtspReader::stop() {
     this->stopSignal = true;
 }
 
+string rtspReader::getVideoCaptureBackend(VideoCapture vc) {
+    int backendId = vc.get(cv::CAP_PROP_BACKEND);
+
+    if (backendId == cv::CAP_MSMF)
+        return "MSMF";
+    if (backendId == cv::CAP_FFMPEG)
+        return "FFMPEG";
+    return "unknown backendID " + to_string(backendId);
+}
+
+
 void rtspReader::run()
 {
     this->stopSignal = false;
     this->emptyFrameCount = 0;
     this->emptyFrameWarningThrottle = 0;
     if (this->url == ""){
-        cout << "this->url is EMPTY, returned;" << endl;
+        cout << "this->url is EMPTY, returned;\n";
         return;
     }
     VideoCapture vc = VideoCapture();
-    vc.set(CV_CAP_PROP_BUFFERSIZE, 1);
-    // internal buffer will now store only 1 frames to minimize loading
-    cout << this->url << ": opening" << endl;
+    vc.set(CV_CAP_PROP_BUFFERSIZE, 2);
+    // internal buffer stores only 2 frames to minimize loading
+    cout << this->url << ": opening\n";
     vc.open(this->url);
-    cout << this->url << ": opened" << endl;
+    cout << this->url << ": opened \n" <<
+            "Backend: " << this->getVideoCaptureBackend(vc) << endl;
+
     while (this->stopSignal == false) {
         vc >> this->frame;
 
@@ -52,7 +65,7 @@ void rtspReader::run()
             this->emptyFrameCount ++;
             if (this->emptyFrameCount % (long)pow(10, this->emptyFrameWarningThrottle) == 0) {
                 this->emptyFrameWarningThrottle ++;
-                cout << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " << (long)pow(10, this->emptyFrameWarningThrottle) << " messages)" << endl;
+                cout << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " << (long)pow(10, this->emptyFrameWarningThrottle) << " messages)\n";
             }
             continue;
         }

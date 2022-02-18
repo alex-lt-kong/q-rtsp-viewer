@@ -34,6 +34,8 @@ private:
     long emptyFrameCount;
     int emptyFrameWarningThrottle;
 
+    string getVideoCaptureBackend(VideoCapture vc);
+
 
 signals:
     void sendNewFrame(Mat frame, QLabel *label);
