@@ -10,6 +10,8 @@ TEMPLATE = app
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
+RC_FILE = qrtsp-viewer.rc
+
 SOURCES += main.cpp\
         mainwindow.cpp \
         rtspreader.cpp

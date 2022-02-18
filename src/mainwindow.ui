@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>773</width>
-    <height>602</height>
+    <width>1069</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab4Channels">
        <property name="styleSheet">
@@ -57,6 +57,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="0">
@@ -75,6 +78,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -95,6 +101,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -113,6 +122,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -147,6 +159,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -168,6 +183,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -191,6 +209,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -212,6 +233,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -235,6 +259,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -256,6 +283,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -279,6 +309,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -300,6 +333,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -323,6 +359,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -344,6 +383,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -367,6 +409,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -388,6 +433,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -411,6 +459,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -432,6 +483,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
@@ -455,6 +509,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
             <property name="margin">
              <number>1</number>
             </property>
@@ -476,6 +533,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="margin">
              <number>1</number>
