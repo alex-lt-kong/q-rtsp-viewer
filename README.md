@@ -1,10 +1,16 @@
-# Q-RTSP-Viewer
+000000000000# Q-RTSP-Viewer
 
 A Qt-based cross-platform RTSP stream viewer.
 
 ## Screenshot
 
 <img src="./images/screenshot.png">
+
+## Deployment
+
+### Windows
+
+`./Qt/6.2.3/mingw_64/bin/windeployqt.exe --release ./q-rtsp-viewer/releases/Windows_Qt_6_2_3_MinGW_64/`
 
 ## OpenCV Installation and Reference
 

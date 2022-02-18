@@ -49,7 +49,7 @@ void rtspReader::run()
         if(this->frame.empty()) {
             this->emptyFrameCount ++;
             if (this->emptyFrameCount % 1000 == 0)
-                cout << "empty frame received, " << this->emptyFrameCount << " in total" << endl;
+                cout << "empty frame received (" << this->emptyFrameCount << " in total)" << endl;
             continue;
         }
         emit sendNewFrame(frame, this->label);

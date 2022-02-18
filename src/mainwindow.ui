@@ -48,6 +48,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string extracomment="label4Channel01"/>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -63,6 +66,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string extracomment="label4Channel00"/>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
@@ -80,6 +86,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string extracomment="label4Channel11"/>
+            </property>
             <property name="text">
              <string>载入中... / Loading...</string>
             </property>
@@ -95,6 +104,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string extracomment="label4Channel10"/>
             </property>
             <property name="text">
              <string>载入中... / Loading...</string>
