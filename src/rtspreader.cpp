@@ -48,7 +48,7 @@ void rtspReader::run()
     this->stopSignal = false;
     this->iterationCount = 0;
     this->emptyFrameCount = 0;
-    this->emptyFrameWarningThrottle = 0;
+    this->emptyFrameWarningThrottle = 1;
     this->capOpenCount = 0;
     if (this->url == ""){
         cout << "this->url is EMPTY, returned;\n";
@@ -78,8 +78,7 @@ void rtspReader::run()
 
         if(readResult == false || this->frame.empty()) {
             this->emptyFrameCount ++;
-            if (this->emptyFrameCount % (long long int)pow(10, this->emptyFrameWarningThrottle) == 0) {
-                this->emptyFrameWarningThrottle ++;
+            if (this->emptyFrameCount % this->emptyFrameWarningThrottle == 0) {
                 this->emptyFrameWarningThrottle *= 2;
                 cout << this->labelName << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
                         this->emptyFrameWarningThrottle << " messages), " <<
