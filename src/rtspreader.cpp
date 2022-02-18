@@ -64,7 +64,7 @@ void rtspReader::run()
 
     while (this->stopSignal == false) {
 
-        if (this->capOpenCount > 2) {
+        if (this->capOpenCount > 10) {
             Mat m;
             cout << this->labelName << ": Too many failed attempts, leaving the loop..." << endl;
             emit sendNewFrame(m, this->label);
