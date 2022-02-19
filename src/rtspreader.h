@@ -26,12 +26,12 @@ protected:
     void run();
 
 private:    
-    static const int maxCapOpenAttempt = 10;
-    const Mat emptyFrame;
+    static const int maxCapOpenAttempt = 10;    
     string url = "";
     int channelId;
     bool stopSignal;
-    Mat frame;    
+    const Mat emptyFrame;
+    Mat frame;
     int capOpenAttempts;
 
     string getVideoCaptureBackend(VideoCapture vc);

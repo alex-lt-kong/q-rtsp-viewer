@@ -73,7 +73,7 @@ void rtspReader::run()
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
             emit sendTextMessage(this->channelId,
-                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then re-open() cv::VideoCapture (" +
+                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then re-trying to re-open() cv::VideoCapture after  (" +
                                  to_string(++this->capOpenAttempts) +  "/" + to_string(rtspReader::maxCapOpenAttempt) + ")");
             emit sendNewFrame(this->channelId, this->emptyFrame);
             // here we cannot assume this->frame is empty--if cap is closed, it may
@@ -86,13 +86,12 @@ void rtspReader::run()
             // release() makes my cap a nullptr...
             cap.open(this->url);
             emit sendTextMessage(this->channelId, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
-            this->frame = Mat();
-            // try if this can avoid some random segmentation fault after a cap is re-open()'ed.
-            // perhaps some interruptions can corrupt this->frame?
             continue;            
         }
         this->capOpenAttempts = 0;
-        emit sendNewFrame(this->channelId, this->frame);
+        emit sendNewFrame(this->channelId, this->frame.clone());
+        // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
+        // before it is fully consumed by GUI thread? Is this the cause of random segmentation fault?
     }    
     // cap.release();
     // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.
