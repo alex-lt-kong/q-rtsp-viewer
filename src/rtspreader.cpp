@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cmath>
 #include <QThread>
+#include <ctime>
 
 using namespace std;
 using namespace cv;
@@ -26,6 +27,11 @@ void rtspReader::setRtspUrl(string url) {
 void rtspReader::setChannelId(int id) {
     this->channelId = id;
 }
+
+void rtspReader::setTargetFPS(float fps) {
+    this->targetFps = fps;
+}
+
 
 void rtspReader::stop() {
     this->stopSignal = true;
@@ -51,7 +57,14 @@ void rtspReader::run()
         return;
     }
     bool readResult = false;
+    float realFps = 0;
+    int frameCount = 0;
+    int validFrameCount = 0;
+    const time_t secSinceEpochAtBeginning = time(nullptr);
+    int skipFrameEvery = 30;
+
     VideoCapture cap = VideoCapture();
+
     cap.set(CV_CAP_PROP_BUFFERSIZE, 2);
     // internal buffer stores only 2 frames to minimize loading
     emit sendTextMessage(this->channelId, "URL [" + this->url + "] opening");
@@ -69,8 +82,15 @@ void rtspReader::run()
             break; // break quits only the innermost loop
         }
 
-        readResult = cap.read(this->frame);
+        frameCount ++;
+        double diff = difftime(time(nullptr), secSinceEpochAtBeginning);
+        realFps = diff == 0 ? 0 : (validFrameCount / diff);
 
+        readResult = cap.grab();
+        if (frameCount % skipFrameEvery == 0) { continue; }
+        readResult = readResult && cap.retrieve(this->frame);
+
+        //cout << readResult << endl;
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
             emit sendTextMessage(this->channelId,
                                  "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then trying to re-open() cv::VideoCapture (" +
@@ -88,8 +108,15 @@ void rtspReader::run()
             emit sendTextMessage(this->channelId, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
             continue;            
         }
+
+        if (realFps >= this->targetFps) {
+            if (skipFrameEvery >=3) { skipFrameEvery --; }
+        } else {
+            skipFrameEvery ++;
+        }
         this->capOpenAttempts = 0;
         emit sendNewFrame(this->channelId, this->frame.clone());
+        validFrameCount ++;
         // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
         // before it is fully consumed by GUI thread? Is this the cause of random segmentation fault?
     }    

@@ -21,6 +21,7 @@ public:
     void stop();
     void setRtspUrl(string url);
     void setChannelId(int id);
+    void setTargetFPS(float fps);
 
 protected:
     void run();
@@ -33,6 +34,7 @@ private:
     const Mat emptyFrame;
     Mat frame;
     int capOpenAttempts;
+    float targetFps;
 
     string getVideoCaptureBackend(VideoCapture vc);
 

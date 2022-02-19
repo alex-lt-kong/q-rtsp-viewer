@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         myRtspReaders[i].setChannelId(i);
+        myRtspReaders[i].setTargetFPS(4.0);
     }
 
     cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
