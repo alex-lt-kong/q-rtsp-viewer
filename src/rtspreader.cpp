@@ -32,10 +32,15 @@ void rtspReader::setTargetFPS(float fps) {
     this->targetFps = fps;
 }
 
+void rtspReader::setQueueDepthPointer(int* depthPtr) {
+    this->globalQueueDepth = depthPtr;
+}
 
 void rtspReader::stop() {
     this->stopSignal = true;
 }
+
+
 
 string rtspReader::getVideoCaptureBackend(VideoCapture vc) {
     int backendId = vc.get(cv::CAP_PROP_BACKEND);
@@ -57,21 +62,15 @@ void rtspReader::run()
         return;
     }
     bool readResult = false;
-    float realFps = 0;
-    int frameCount = 0;
-    int validFrameCount = 0;
-    const time_t secSinceEpochAtBeginning = time(nullptr);
-    int skipFrameEvery = 30;
 
     VideoCapture cap = VideoCapture();
 
-    cap.set(CV_CAP_PROP_BUFFERSIZE, 2);
+    cap.set(CV_CAP_PROP_BUFFERSIZE, this->targetFps * 5);
     // internal buffer stores only 2 frames to minimize loading
     emit sendTextMessage(this->channelId, "URL [" + this->url + "] opening");
     cap.open(this->url);
     emit sendTextMessage(this->channelId, "URL [" + this->url + "], open() result: " +
                          to_string(cap.isOpened()) + ", backedend: " + this->getVideoCaptureBackend(cap));
-    // need to have a manual flush here, otherwise, sometimes the opened line won't be dispalyed
 
     while (this->stopSignal == false) {
 
@@ -82,23 +81,13 @@ void rtspReader::run()
             break; // break quits only the innermost loop
         }
 
-        frameCount ++;
-        double diff = difftime(time(nullptr), secSinceEpochAtBeginning);
-        realFps = diff == 0 ? 0 : (validFrameCount / diff);
-
         readResult = cap.grab();
-        if (frameCount % skipFrameEvery == 0) { continue; }
         readResult = readResult && cap.retrieve(this->frame);
 
-        //cout << readResult << endl;
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
             emit sendTextMessage(this->channelId,
                                  "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then trying to re-open() cv::VideoCapture (" +
                                  to_string(++this->capOpenAttempts) +  "/" + to_string(rtspReader::maxCapOpenAttempt) + ")");
-            emit sendNewFrame(this->channelId, this->emptyFrame);
-            // here we cannot assume this->frame is empty--if cap is closed, it may
-            // simply skip cap.read() and this->frame keeps its existing non-empty data.
-
             QThread::sleep(10);
             // cap.release();
             // seems we cannot call release() here because OpenCV's document says:
@@ -106,17 +95,14 @@ void rtspReader::run()
             // release() makes my cap a nullptr...
             cap.open(this->url);
             emit sendTextMessage(this->channelId, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
+
             continue;            
         }
 
-        if (realFps >= this->targetFps) {
-            if (skipFrameEvery >=3) { skipFrameEvery --; }
-        } else {
-            skipFrameEvery ++;
-        }
         this->capOpenAttempts = 0;
         emit sendNewFrame(this->channelId, this->frame.clone());
-        validFrameCount ++;
+        *(this->globalQueueDepth) = *(this->globalQueueDepth) + 1;
+
         // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
         // before it is fully consumed by GUI thread? Is this the cause of random segmentation fault?
     }    

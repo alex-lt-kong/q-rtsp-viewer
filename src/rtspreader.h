@@ -22,6 +22,7 @@ public:
     void setRtspUrl(string url);
     void setChannelId(int id);
     void setTargetFPS(float fps);
+    void setQueueDepthPointer(int* depthPtr);
 
 protected:
     void run();
@@ -30,6 +31,7 @@ private:
     static const int maxCapOpenAttempt = 10;    
     string url = "";
     int channelId;
+    int* globalQueueDepth;
     bool stopSignal;
     const Mat emptyFrame;
     Mat frame;
