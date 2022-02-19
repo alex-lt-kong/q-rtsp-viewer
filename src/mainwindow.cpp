@@ -144,7 +144,7 @@ void MainWindow::onNewFrameReceived(int channelId, Mat frame, long long int msSi
 
         long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int msDiff = msNow - msSinceEpoch;
-        if (msDiff > 33) { cout << msDiff << endl; }
+        if (msDiff > 33) { cout << "gap: " << msDiff << "ms, frame dropped" << endl; return; }
 
         rawFrames[channelId] = frame;
         QImage image = QImage(
