@@ -73,7 +73,7 @@ void rtspReader::run()
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
             emit sendTextMessage(this->channelId,
-                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: trying to reopen cv::VideoCapture after wait for 10 sec (" +
+                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then re-open() cv::VideoCapture (" +
                                  to_string(++this->capOpenAttempts) +  "/" + to_string(rtspReader::maxCapOpenAttempt) + ")");
             emit sendNewFrame(this->channelId, this->emptyFrame);
             // here we cannot assume this->frame is empty--if cap is closed, it may
@@ -86,6 +86,9 @@ void rtspReader::run()
             // release() makes my cap a nullptr...
             cap.open(this->url);
             emit sendTextMessage(this->channelId, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
+            this->frame = Mat();
+            // try if this can avoid some random segmentation fault after a cap is re-open()'ed.
+            // perhaps some interruptions can corrupt this->frame?
             continue;            
         }
         this->capOpenAttempts = 0;

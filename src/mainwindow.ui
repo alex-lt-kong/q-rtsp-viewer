@@ -564,7 +564,7 @@
        <widget class="QPushButton" name="pushButtonSaveScreenshots">
         <property name="maximumSize">
          <size>
-          <width>288</width>
+          <width>350</width>
           <height>16777215</height>
          </size>
         </property>
