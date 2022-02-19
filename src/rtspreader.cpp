@@ -1,4 +1,4 @@
-#include "rtspreader.h"
+﻿#include "rtspreader.h"
 #include <QDebug>
 #include <string>
 #include <QLabel>
@@ -46,74 +46,51 @@ string rtspReader::getVideoCaptureBackend(VideoCapture vc) {
 void rtspReader::run()
 {
     this->stopSignal = false;
-    this->iterationCount = 0;
-    this->emptyFrameCount = 0;
-    this->emptyFrameWarningThrottle = 1;
-    this->capOpenCount = 0;
-    if (this->url == ""){
-        cout << "this->url is EMPTY, returned;\n";
+    this->capOpenAttempts = 0;
+    if (this->url == "") {
+        emit sendTextMessage(this->labelName, "this->url is EMPTY, returned;");
         return;
     }
     bool readResult = false;
     VideoCapture cap = VideoCapture();
     cap.set(CV_CAP_PROP_BUFFERSIZE, 2);
     // internal buffer stores only 2 frames to minimize loading
-    cout << this->labelName << ": URL " << this->url << ": opening\n";
+    emit sendTextMessage(this->labelName, "URL [" + this->url + "] opening");
     cap.open(this->url);
-    this->capOpenCount ++;
-    cout <<this->labelName << ": URL " << this->url << ": opened, Backend: " << this->getVideoCaptureBackend(cap) << endl;
+    emit sendTextMessage(this->labelName, "URL [" + this->url + "] opened, backedend: " + this->getVideoCaptureBackend(cap));
     // need to have a manual flush here, otherwise, sometimes the opened line won't be dispalyed
 
     while (this->stopSignal == false) {
-        this->iterationCount ++;
-        if (this->capOpenCount > 10) {
-            Mat m;
-            cout << this->labelName << ": Too many failed attempts, leaving the loop..." << endl;
-            emit sendNewFrame(m, this->label);
+
+        if (this->capOpenAttempts > this->maxCapOpenAttempt) {
+            emit sendTextMessage(this->labelName, "Too many failed attempts, leaving the message loop...");
+            emit sendNewFrame(this->emptyFrame, this->label);
             // here we emit an empty Mat to indicate the loop is about to end;
-            break;
+            break; // break quits only the innermost loop
         }
 
         readResult = cap.read(this->frame);
 
-        if(readResult == false || this->frame.empty()) {
-            this->emptyFrameCount ++;
-            if (this->emptyFrameCount % this->emptyFrameWarningThrottle == 0) {
-                this->emptyFrameWarningThrottle *= 2;
-                cout << this->labelName << ": empty frame received (" << this->emptyFrameCount << " in total, stdout throttled to " <<
-                        this->emptyFrameWarningThrottle << " messages), " <<
-                       "vc::isOpened(): " << cap.isOpened() << endl;             
-            }
-            if (this->emptyFrameCount % 100 == 0) {
-                QThread::sleep(10);
-                cout << this->labelName << ": cap says it is still opened, but who cares, let's release() and open() it again! (" << this->capOpenCount << ")";
-                cap.release();
-                cap.open(this->url);
-                this->capOpenCount ++;
-            }
+        if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
+            emit sendNewFrame(this->emptyFrame, this->label);
+            // here we cannot assume this->frame is empty--if cap is closed, it may
+            // simply skip cap.read() and this->frame keeps its existing non-empty data.
+            emit sendTextMessage(this->labelName,
+                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: trying to reopen cv::VideoCapture after wait for 10 sec (" +
+                                 to_string(++this->capOpenAttempts) +  "/" + to_string(this->maxCapOpenAttempt) + ")");
+            QThread::sleep(10);
+            // cap.release();
+            // seems we cannot call release() here because OpenCV's document says:
+            // "[it] also deallocates memory and clears *capture pointer". Appears to me that
+            // release() makes my cap a nullptr...
+            cap.open(this->url);
+            emit sendTextMessage(this->labelName, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
             continue;            
         }
-        if (this->iterationCount % 100 == 0 && cap.isOpened() == false) {
-            // we shouldn't check this only when frame.empty() == ture,
-            // it is possible that cap.isOpened() == false so that cap
-            // just skips cap.read() instead of writing nothing into frame
-            // meaning that frame keeps its last valid snapshot forever.
-            cout << this->labelName << ": cap unexpectedly closed, reopening...(" << this->capOpenCount << ")";
-            QThread::sleep(10);
-            cap.open(this->url);
-            this->capOpenCount ++;
-        }
-        // this->capOpenCount = 0;
-        /* seems we can't reset if frame.empty() == false. the reason is that,
-         * suppose an opened cap loses connection and fails to open again,
-         * cap.read(frame) may just skip instead of writting empty data to
-         * frame, so the program always resets the counter even it means to
-         * quit. Worse still, the thread may be stuck in a dead loop where
-         * vap.isOpened() == false and frame.empty() == false, so the thread
-         * keep looping for nothing
-         */
+        this->capOpenAttempts = 0;
         emit sendNewFrame(frame, this->label);
-    }
-    cap.release();
-    cout << this->labelName << ": RTSP stream loop stopped gracefully!\n";
+    }    
+    // cap.release();
+    // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.
+    emit sendTextMessage(this->labelName, "RTSP stream loop stopped gracefully");
 }

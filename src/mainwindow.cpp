@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    loadSettings();
+
 
     ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel01->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
@@ -58,21 +58,36 @@ MainWindow::MainWindow(QWidget *parent) :
     myRtspReaders[idx++].setLabel(ui->label16Channel32);
     myRtspReaders[idx++].setLabel(ui->label16Channel33);
 
+    //on_tabWidget_currentChanged(0);
+    cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
+
     for (int i = 0; i < 20; i ++) {
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
-        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(Mat,QLabel*)), SLOT(onNewFrameReceived(Mat,QLabel*)));
+        connect(&myRtspReaders[i], SIGNAL(sendTextMessage(string,string)), SLOT(onNewTextMessageReceived(string,string)));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(Mat,QLabel*)), SLOT(onNewFrameReceived(Mat,QLabel*)));        
     }
 
 
-    //on_tabWidget_currentChanged(0);
-    cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
 }
 
 void MainWindow::showEvent( QShowEvent* event ) {
 
     QWidget::showEvent( event );
     // the code below will be executed AFTER the MainWindow is shown
-
+    loadSettings();
+    srand (time(NULL));
+    this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
+    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
+    on_comboBoxDomainNames_currentIndexChanged1(0);
+    /*
+        Note this design:
+        1. No slot is predefined in Qt Designer;
+        2. Load comboBoxDomainNames values from settings file--no slot event will be triggered;
+        3. then we pick a random item, so that it triggers the slot only once.
+        4. Enable slot;
+        How about we swap the order of 3 and 4? No, if the same value is randomly picked, then the event
+        will NOT be triggered!
+    */
 }
 
 void MainWindow::loadSettings() {
@@ -99,20 +114,10 @@ void MainWindow::loadSettings() {
         settings.setArrayIndex(i);
         this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
     }
-    srand (time(NULL));
-    this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
-    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
-    on_comboBoxDomainNames_currentIndexChanged1(0);
-    /*
-        Note this design:
-        1. No slot is predefined in Qt Designer;
-        2. Load comboBoxDomainNames values from settings file--no slot event will be triggered;
-        3. then we pick a random item, so that it triggers the slot only once.
-        4. Enable slot;
-        How about we swap the order of 3 and 4? No, if the same value is randomly picked, then the event
-        will NOT be triggered!
-    */
     settings.endArray();
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -142,6 +147,21 @@ void MainWindow::onNewFrameReceived(Mat frame, QLabel *label) {
         label->clear();
         label->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");
     }
+}
+
+void MainWindow::onNewTextMessageReceived(string labelName, string message) {
+    // This slot is a must--if we allow worker threads to directly write
+    // to stdout, it may be safe, but the format could be broken by possible
+    // concurrent writing.
+
+    time_t now;
+    time(&now);
+    char buf[sizeof "1970-01-01 00:00:00"];
+    strftime(buf, sizeof buf, "%F %T", localtime(&now));
+    //std::cout << buf << "\n";
+
+    cout << "[" << buf << "] " + labelName << ": " << message << endl;
+    // Have to flush, otherwise a line may be partially shown ¯\_(ツ)_/¯
 }
 
 void MainWindow::stopStreams(int tabIndex, bool wait) {

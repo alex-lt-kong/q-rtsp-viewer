@@ -38,6 +38,7 @@ private:
 
 public slots:
     void onNewFrameReceived(Mat frame, QLabel *label);
+    void onNewTextMessageReceived(string labelName, string message);
 };
 
 #endif // MAINWINDOW_H

@@ -14,6 +14,7 @@ using namespace cv;
 class rtspReader: public QThread
 {
     Q_OBJECT
+
 public:
     rtspReader();
     ~rtspReader();
@@ -24,23 +25,22 @@ public:
 protected:
     void run();
 
-
 private:
     string url = "";
     string labelName = "";
     QLabel* label;
     bool stopSignal;
     Mat frame;
+    const Mat emptyFrame;
     QPixmap pixmap;
-    long long int emptyFrameCount; // seems long is from -2,147,483,648 to 2,147,483,647
-    long long int iterationCount;
-    long long int emptyFrameWarningThrottle;
-    int capOpenCount;
+    int capOpenAttempts;
+    const int maxCapOpenAttempt = 10;
 
     string getVideoCaptureBackend(VideoCapture vc);
 
 
 signals:
     void sendNewFrame(Mat frame, QLabel *label);
+    void sendTextMessage(string labelName, string message);
 };
 #endif // RTSPREADER_H
