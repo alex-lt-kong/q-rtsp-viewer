@@ -24,12 +24,16 @@ private slots:
     void on_comboBoxDomainNames_currentIndexChanged1(int index);
 
 
+    void on_pushButtonSaveScreenshots_clicked();
+
 private:
     Ui::MainWindow *ui;
-    int channelCount = 20;
+    const static int channelCount = 20;
     QString *myUrls4Channels = new QString[4];
     QString *myUrls16Channels = new QString[16];
     bool isMainWindowInitialized = false;
+    QLabel *frameLabels[channelCount];
+    Mat rawFrames[channelCount];
 
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);
@@ -38,8 +42,8 @@ private:
     void loadSettings();
 
 public slots:
-    void onNewFrameReceived(Mat frame, QLabel *label);
-    void onNewTextMessageReceived(string labelName, string message);
+    void onNewFrameReceived(int channelId, Mat frame);
+    void onNewTextMessageReceived(int channelId, string message);
 };
 
 #endif // MAINWINDOW_H

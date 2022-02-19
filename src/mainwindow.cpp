@@ -12,6 +12,8 @@
 #include <QThread>
 #include <QDialog>
 #include <QDateTime>
+#include <QStandardPaths>
+#include <QDir>
 
 using namespace std;
 using namespace cv;
@@ -21,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-
 
     ui->label4Channel00->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
     ui->label4Channel01->setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored );
@@ -37,38 +37,39 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     int idx = 0;
-    myRtspReaders[idx++].setLabel(ui->label4Channel00);
-    myRtspReaders[idx++].setLabel(ui->label4Channel01);
-    myRtspReaders[idx++].setLabel(ui->label4Channel10);
-    myRtspReaders[idx++].setLabel(ui->label4Channel11);
+    this->frameLabels[idx++] = ui->label4Channel00;
+    this->frameLabels[idx++] = ui->label4Channel01;
+    this->frameLabels[idx++] = ui->label4Channel10;
+    this->frameLabels[idx++] = ui->label4Channel11;
 
-    myRtspReaders[idx++].setLabel(ui->label16Channel00);
-    myRtspReaders[idx++].setLabel(ui->label16Channel01);
-    myRtspReaders[idx++].setLabel(ui->label16Channel02);
-    myRtspReaders[idx++].setLabel(ui->label16Channel03);
-    myRtspReaders[idx++].setLabel(ui->label16Channel10);
-    myRtspReaders[idx++].setLabel(ui->label16Channel11);
-    myRtspReaders[idx++].setLabel(ui->label16Channel12);
-    myRtspReaders[idx++].setLabel(ui->label16Channel13);
-    myRtspReaders[idx++].setLabel(ui->label16Channel20);
-    myRtspReaders[idx++].setLabel(ui->label16Channel21);
-    myRtspReaders[idx++].setLabel(ui->label16Channel22);
-    myRtspReaders[idx++].setLabel(ui->label16Channel23);
-    myRtspReaders[idx++].setLabel(ui->label16Channel30);
-    myRtspReaders[idx++].setLabel(ui->label16Channel31);
-    myRtspReaders[idx++].setLabel(ui->label16Channel32);
-    myRtspReaders[idx++].setLabel(ui->label16Channel33);
+    this->frameLabels[idx++] = ui->label16Channel00;
+    this->frameLabels[idx++] = ui->label16Channel01;
+    this->frameLabels[idx++] = ui->label16Channel02;
+    this->frameLabels[idx++] = ui->label16Channel03;
+    this->frameLabels[idx++] = ui->label16Channel10;
+    this->frameLabels[idx++] = ui->label16Channel11;
+    this->frameLabels[idx++] = ui->label16Channel12;
+    this->frameLabels[idx++] = ui->label16Channel13;
+    this->frameLabels[idx++] = ui->label16Channel20;
+    this->frameLabels[idx++] = ui->label16Channel21;
+    this->frameLabels[idx++] = ui->label16Channel22;
+    this->frameLabels[idx++] = ui->label16Channel23;
+    this->frameLabels[idx++] = ui->label16Channel30;
+    this->frameLabels[idx++] = ui->label16Channel31;
+    this->frameLabels[idx++] = ui->label16Channel32;
+    this->frameLabels[idx++] = ui->label16Channel33;
 
-    //on_tabWidget_currentChanged(0);
-    cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
-
-    for (int i = 0; i < 20; i ++) {
-        // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
-        connect(&myRtspReaders[i], SIGNAL(sendTextMessage(string,string)), SLOT(onNewTextMessageReceived(string,string)));
-        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(Mat,QLabel*)), SLOT(onNewFrameReceived(Mat,QLabel*)));        
+    for (int i = 0; i < MainWindow::channelCount; i ++) {
+        myRtspReaders[i].setChannelId(i);
     }
 
+    cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
 
+    for (int i = 0; i < MainWindow::channelCount; i ++) {
+        // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
+        connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,string)), SLOT(onNewTextMessageReceived(int,string)));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,Mat)), SLOT(onNewFrameReceived(int,Mat)));
+    }
 }
 
 void MainWindow::showEvent( QShowEvent* event ) {
@@ -135,29 +136,35 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onNewFrameReceived(Mat frame, QLabel *label) {
+void MainWindow::onNewFrameReceived(int channelId, Mat frame) {
 
     if (frame.empty() == false) {
-        QImage image = QImage((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
+        rawFrames[channelId] = frame;
+        QImage image = QImage(
+                    (uchar*)rawFrames[channelId].data,
+                    rawFrames[channelId].cols,
+                    rawFrames[channelId].rows,
+                    rawFrames[channelId].step,
+                    QImage::Format_BGR888);
         QPixmap pixmap = QPixmap::fromImage(image);
-        label->setPixmap(pixmap.scaled(label->width() > 1 ? label->width() - 1: 1,
-                                       label->height() > 1 ? label->height() - 1: 1,
+        frameLabels[channelId]->setPixmap(pixmap.scaled(frameLabels[channelId]->width() > 1 ? frameLabels[channelId]->width() - 1: 1,
+                                       frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
                                        Qt::IgnoreAspectRatio));
     } else {
-        label->clear();
-        label->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");
+        frameLabels[channelId]->clear();
+        frameLabels[channelId]->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");
     }
 }
 
-void MainWindow::onNewTextMessageReceived(string labelName, string message) {
+void MainWindow::onNewTextMessageReceived(int channelId, string message) {
     // This slot is a must--if we allow worker threads to directly write
     // to stdout, it may be safe, but the format could be broken by possible
     // concurrent writing.
 
      QDateTime dateTime = dateTime.currentDateTime();
      cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
-          << labelName << ": " << message << endl;
-    // Have to flush, otherwise a line may be partially shown ¯\_(ツ)_/¯
+          << frameLabels[channelId]->toolTip().toStdString() << ": " << message << endl;
+    // Have to flush by calling endl, otherwise a line may be partially shown ¯\_(ツ)_/¯
 }
 
 void MainWindow::stopStreams(int tabIndex, bool wait) {
@@ -239,6 +246,23 @@ void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
     }
     else {
         playStreams(1);
+    }
+}
+
+
+void MainWindow::on_pushButtonSaveScreenshots_clicked()
+{
+    QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/截图-screenshots/";
+
+    QDir dir(destDirectory);
+    if (!dir.exists())
+        dir.mkpath(".");
+
+    QDateTime dateTime = dateTime.currentDateTime();
+    for (int i = 0; i < MainWindow::channelCount; i ++) {
+        if (rawFrames[i].empty())
+            continue;
+        imwrite(destDirectory.toStdString() + "channel" + to_string(i+1) + "_" + dateTime.toString("yyyyMMdd-HHmmss").toStdString() + ".jpg", rawFrames[i]);
     }
 }
 

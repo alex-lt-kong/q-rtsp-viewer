@@ -20,27 +20,25 @@ public:
     ~rtspReader();
     void stop();
     void setRtspUrl(string url);
-    void setLabel(QLabel *label);
+    void setChannelId(int id);
 
 protected:
     void run();
 
 private:
     string url = "";
-    string labelName = "";
-    QLabel* label;
+    int channelId;
     bool stopSignal;
     Mat frame;
     const Mat emptyFrame;
     QPixmap pixmap;
     int capOpenAttempts;
-    const int maxCapOpenAttempt = 10;
-
+    const int maxCapOpenAttempt = 10;    
     string getVideoCaptureBackend(VideoCapture vc);
 
 
 signals:
-    void sendNewFrame(Mat frame, QLabel *label);
-    void sendTextMessage(string labelName, string message);
+    void sendNewFrame(int channelId, Mat frame);
+    void sendTextMessage(int channelId, string message);
 };
 #endif // RTSPREADER_H
