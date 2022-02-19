@@ -31,6 +31,7 @@ win32 {
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_core3416.dll.a"
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_video3416.dll.a"
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_videoio3416.dll.a"
+    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_imgcodecs3416.dll.a"
     INCLUDEPATH += C:\lib\build_opencv\install\include
 }
 
