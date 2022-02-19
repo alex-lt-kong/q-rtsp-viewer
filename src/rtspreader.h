@@ -22,7 +22,6 @@ public:
     void setRtspUrl(string url);
     void setChannelId(int id);
     void setTargetFPS(float fps);
-    void setQueueDepthPointer(atomic<int> &depth);
 
 protected:
     void run();
@@ -31,7 +30,6 @@ private:
     static const int maxCapOpenAttempt = 10;    
     string url = "";
     int channelId;
-    atomic_int globalQueueDepth;
     bool stopSignal;
     const Mat emptyFrame;
     Mat frame;
@@ -41,7 +39,7 @@ private:
     string getVideoCaptureBackend(VideoCapture vc);
 
 signals:
-    void sendNewFrame(int channelId, cv::Mat frame);
+    void sendNewFrame(int channelId, cv::Mat frame, long long int msSinceEpoch);
     void sendTextMessage(int channelId, std::string message);
 };
 #endif // RTSPREADER_H

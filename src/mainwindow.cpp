@@ -14,6 +14,8 @@
 #include <QDateTime>
 #include <QStandardPaths>
 #include <QDir>
+#include <chrono>
+#include <cstdint>
 
 using namespace std;
 using namespace cv;
@@ -59,11 +61,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->frameLabels[idx++] = ui->label16Channel32;
     this->frameLabels[idx++] = ui->label16Channel33;
 
-    this->globalQueueDepth = 0;
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         myRtspReaders[i].setChannelId(i);
         myRtspReaders[i].setTargetFPS(100.0);
-        myRtspReaders[i].setQueueDepthPointer(ref(globalQueueDepth));
     }
 
     cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
         connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,std::string)), SLOT(onNewTextMessageReceived(int,std::string)));
-        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,cv::Mat)), SLOT(onNewFrameReceived(int,cv::Mat)));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,cv::Mat,long long int)), SLOT(onNewFrameReceived(int,cv::Mat,long long int)));
     }
 }
 
@@ -138,9 +138,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onNewFrameReceived(int channelId, Mat frame) {
+void MainWindow::onNewFrameReceived(int channelId, Mat frame, long long int msSinceEpoch) {
 
     if (frame.empty() == false) {
+
+        long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+        int msDiff = msNow - msSinceEpoch;
+        if (msDiff > 33) { cout << msDiff << endl; }
+
         rawFrames[channelId] = frame;
         QImage image = QImage(
                     (uchar*)rawFrames[channelId].data,
@@ -151,9 +156,7 @@ void MainWindow::onNewFrameReceived(int channelId, Mat frame) {
         QPixmap pixmap = QPixmap::fromImage(image);
         frameLabels[channelId]->setPixmap(pixmap.scaled(frameLabels[channelId]->width() > 1 ? frameLabels[channelId]->width() - 1: 1,
                                        frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
-                                       Qt::IgnoreAspectRatio));
-        this->globalQueueDepth = this->globalQueueDepth -1;
-        cout << this->globalQueueDepth << endl;
+                                       Qt::IgnoreAspectRatio));        
     } else {
         frameLabels[channelId]->clear();
         frameLabels[channelId]->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");

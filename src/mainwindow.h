@@ -22,8 +22,6 @@ private slots:
     void on_pushButtonExit_clicked();
     void on_tabWidget_currentChanged(int index);
     void on_comboBoxDomainNames_currentIndexChanged1(int index);
-
-
     void on_pushButtonSaveScreenshots_clicked();
 
 private:
@@ -34,7 +32,6 @@ private:
     bool isMainWindowInitialized = false;
     QLabel *frameLabels[channelCount];
     Mat rawFrames[channelCount];
-    atomic_int globalQueueDepth = atomic_int(0);
 
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);
@@ -43,7 +40,7 @@ private:
     void loadSettings();
 
 public slots:
-    void onNewFrameReceived(int channelId, cv::Mat frame);
+    void onNewFrameReceived(int channelId, cv::Mat frame, long long int msSinceEpoch);
     void onNewTextMessageReceived(int channelId, std::string message);
 };
 

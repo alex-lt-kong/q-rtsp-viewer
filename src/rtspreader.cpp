@@ -32,10 +32,6 @@ void rtspReader::setTargetFPS(float fps) {
     this->targetFps = fps;
 }
 
-void rtspReader::setQueueDepthPointer(atomic_int& depthPtr) {
-    this->globalQueueDepth = atomic_int(depthPtr);
-}
-
 void rtspReader::stop() {
     this->stopSignal = true;
 }
@@ -76,13 +72,12 @@ void rtspReader::run()
 
         if (this->capOpenAttempts >= rtspReader::maxCapOpenAttempt) {
             emit sendTextMessage(this->channelId, "Too many failed attempts, leaving the message loop...");
-            emit sendNewFrame(this->channelId, this->emptyFrame);
+            emit sendNewFrame(this->channelId, this->emptyFrame, -1);
             // here we emit an empty Mat to indicate the loop is about to end;
             break; // break quits only the innermost loop
         }
 
         readResult = cap.grab();
-        if (this->globalQueueDepth > 2) { continue; cout << "frame dropped" << endl; }
         readResult = readResult && cap.retrieve(this->frame);
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
@@ -101,8 +96,7 @@ void rtspReader::run()
         }
 
         this->capOpenAttempts = 0;
-        this->globalQueueDepth = this->globalQueueDepth + 1;
-        emit sendNewFrame(this->channelId, this->frame.clone());
+        emit sendNewFrame(this->channelId, this->frame.clone(), chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count());
 
         // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
         // before it is fully consumed by GUI thread? Is this the cause of random segmentation fault?
