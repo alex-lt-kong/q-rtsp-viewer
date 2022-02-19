@@ -42,8 +42,8 @@ private:
     void loadSettings();
 
 public slots:
-    void onNewFrameReceived(int channelId, Mat frame);
-    void onNewTextMessageReceived(int channelId, string message);
+    void onNewFrameReceived(int channelId, cv::Mat frame);
+    void onNewTextMessageReceived(int channelId, std::string message);
 };
 
 #endif // MAINWINDOW_H

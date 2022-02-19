@@ -564,12 +564,12 @@
        <widget class="QPushButton" name="pushButtonSaveScreenshots">
         <property name="maximumSize">
          <size>
-          <width>256</width>
+          <width>288</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="text">
-         <string>保存截图 / Save Screenshots</string>
+         <string>保存截图到桌面 / Save Screenshots to Desktop</string>
         </property>
        </widget>
       </item>

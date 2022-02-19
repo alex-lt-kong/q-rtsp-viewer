@@ -62,7 +62,7 @@ void rtspReader::run()
 
     while (this->stopSignal == false) {
 
-        if (this->capOpenAttempts >= this->maxCapOpenAttempt) {
+        if (this->capOpenAttempts >= rtspReader::maxCapOpenAttempt) {
             emit sendTextMessage(this->channelId, "Too many failed attempts, leaving the message loop...");
             emit sendNewFrame(this->channelId, this->emptyFrame);
             // here we emit an empty Mat to indicate the loop is about to end;
@@ -72,12 +72,13 @@ void rtspReader::run()
         readResult = cap.read(this->frame);
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
+            emit sendTextMessage(this->channelId,
+                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: trying to reopen cv::VideoCapture after wait for 10 sec (" +
+                                 to_string(++this->capOpenAttempts) +  "/" + to_string(rtspReader::maxCapOpenAttempt) + ")");
             emit sendNewFrame(this->channelId, this->emptyFrame);
             // here we cannot assume this->frame is empty--if cap is closed, it may
             // simply skip cap.read() and this->frame keeps its existing non-empty data.
-            emit sendTextMessage(this->channelId,
-                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: trying to reopen cv::VideoCapture after wait for 10 sec (" +
-                                 to_string(++this->capOpenAttempts) +  "/" + to_string(this->maxCapOpenAttempt) + ")");
+
             QThread::sleep(10);
             // cap.release();
             // seems we cannot call release() here because OpenCV's document says:
@@ -88,7 +89,7 @@ void rtspReader::run()
             continue;            
         }
         this->capOpenAttempts = 0;
-        emit sendNewFrame(this->channelId, frame);
+        emit sendNewFrame(this->channelId, this->frame);
     }    
     // cap.release();
     // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.

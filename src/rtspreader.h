@@ -25,20 +25,19 @@ public:
 protected:
     void run();
 
-private:
+private:    
+    static const int maxCapOpenAttempt = 10;
+    const Mat emptyFrame;
     string url = "";
     int channelId;
     bool stopSignal;
-    Mat frame;
-    const Mat emptyFrame;
-    QPixmap pixmap;
+    Mat frame;    
     int capOpenAttempts;
-    const int maxCapOpenAttempt = 10;    
+
     string getVideoCaptureBackend(VideoCapture vc);
 
-
 signals:
-    void sendNewFrame(int channelId, Mat frame);
-    void sendTextMessage(int channelId, string message);
+    void sendNewFrame(int channelId, cv::Mat frame);
+    void sendTextMessage(int channelId, std::string message);
 };
 #endif // RTSPREADER_H

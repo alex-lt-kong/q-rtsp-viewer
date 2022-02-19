@@ -67,8 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
-        connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,string)), SLOT(onNewTextMessageReceived(int,string)));
-        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,Mat)), SLOT(onNewFrameReceived(int,Mat)));
+        connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,std::string)), SLOT(onNewTextMessageReceived(int,std::string)));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,cv::Mat)), SLOT(onNewFrameReceived(int,cv::Mat)));
     }
 }
 
@@ -252,7 +252,9 @@ void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
 
 void MainWindow::on_pushButtonSaveScreenshots_clicked()
 {
-    QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/截图-screenshots/";
+    QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/cctv/";
+    bool writeResult = false;
+    QString destPath;
 
     QDir dir(destDirectory);
     if (!dir.exists())
@@ -262,7 +264,9 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         if (rawFrames[i].empty())
             continue;
-        imwrite(destDirectory.toStdString() + "channel" + to_string(i+1) + "_" + dateTime.toString("yyyyMMdd-HHmmss").toStdString() + ".jpg", rawFrames[i]);
+        destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".jpg");
+        writeResult = imwrite(destPath.toStdString(), rawFrames[i]);
+        cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << endl;
     }
 }
 
