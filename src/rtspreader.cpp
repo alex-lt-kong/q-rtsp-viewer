@@ -57,7 +57,8 @@ void rtspReader::run()
     // internal buffer stores only 2 frames to minimize loading
     emit sendTextMessage(this->labelName, "URL [" + this->url + "] opening");
     cap.open(this->url);
-    emit sendTextMessage(this->labelName, "URL [" + this->url + "] opened, backedend: " + this->getVideoCaptureBackend(cap));
+    emit sendTextMessage(this->labelName, "URL [" + this->url + "], open() result: " +
+                         to_string(cap.isOpened()) + ", backedend: " + this->getVideoCaptureBackend(cap));
     // need to have a manual flush here, otherwise, sometimes the opened line won't be dispalyed
 
     while (this->stopSignal == false) {

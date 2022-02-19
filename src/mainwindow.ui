@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>884</width>
-    <height>606</height>
+    <width>1007</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -559,6 +559,19 @@
       </item>
       <item>
        <widget class="QComboBox" name="comboBoxDomainNames"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonSaveScreenshots">
+        <property name="maximumSize">
+         <size>
+          <width>256</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>保存截图 / Save Screenshots</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonExit">
