@@ -11,6 +11,8 @@
 #include <rtspreader.h>
 #include <QThread>
 #include <QDialog>
+#include <ctime>
+#include <QDateTime>
 
 using namespace std;
 using namespace cv;
@@ -101,7 +103,6 @@ void MainWindow::loadSettings() {
     }
     settings.endArray();
 
-
     size = settings.beginReadArray("16ChannelUrls");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
@@ -115,9 +116,6 @@ void MainWindow::loadSettings() {
         this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
     }
     settings.endArray();
-
-
-
 }
 
 MainWindow::~MainWindow()
@@ -154,13 +152,9 @@ void MainWindow::onNewTextMessageReceived(string labelName, string message) {
     // to stdout, it may be safe, but the format could be broken by possible
     // concurrent writing.
 
-    time_t now;
-    time(&now);
-    char buf[sizeof "1970-01-01 00:00:00"];
-    strftime(buf, sizeof buf, "%F %T", localtime(&now));
-    //std::cout << buf << "\n";
-
-    cout << "[" << buf << "] " + labelName << ": " << message << endl;
+     QDateTime dateTime = dateTime.currentDateTime();
+     cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
+          << labelName << ": " << message << endl;
     // Have to flush, otherwise a line may be partially shown ¯\_(ツ)_/¯
 }
 

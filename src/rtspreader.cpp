@@ -62,7 +62,7 @@ void rtspReader::run()
 
     while (this->stopSignal == false) {
 
-        if (this->capOpenAttempts > this->maxCapOpenAttempt) {
+        if (this->capOpenAttempts >= this->maxCapOpenAttempt) {
             emit sendTextMessage(this->labelName, "Too many failed attempts, leaving the message loop...");
             emit sendNewFrame(this->emptyFrame, this->label);
             // here we emit an empty Mat to indicate the loop is about to end;
