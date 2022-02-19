@@ -65,7 +65,7 @@ void rtspReader::run()
 
     VideoCapture cap = VideoCapture();
 
-    cap.set(CV_CAP_PROP_BUFFERSIZE, this->targetFps * 5);
+    cap.set(CV_CAP_PROP_BUFFERSIZE, 2);
     // internal buffer stores only 2 frames to minimize loading
     emit sendTextMessage(this->channelId, "URL [" + this->url + "] opening");
     cap.open(this->url);
@@ -82,6 +82,7 @@ void rtspReader::run()
         }
 
         readResult = cap.grab();
+        if (*(this->globalQueueDepth) > 2) { continue; }
         readResult = readResult && cap.retrieve(this->frame);
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
@@ -101,7 +102,7 @@ void rtspReader::run()
 
         this->capOpenAttempts = 0;
         emit sendNewFrame(this->channelId, this->frame.clone());
-        *(this->globalQueueDepth) = *(this->globalQueueDepth) + 1;
+        *(this->globalQueueDepth)++;
 
         // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
         // before it is fully consumed by GUI thread? Is this the cause of random segmentation fault?
