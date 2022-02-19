@@ -11,7 +11,6 @@
 #include <rtspreader.h>
 #include <QThread>
 #include <QDialog>
-#include <ctime>
 #include <QDateTime>
 
 using namespace std;
