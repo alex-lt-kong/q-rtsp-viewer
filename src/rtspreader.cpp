@@ -79,9 +79,10 @@ void rtspReader::run()
                                  "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: trying to reopen cv::VideoCapture after wait for 10 sec (" +
                                  to_string(++this->capOpenAttempts) +  "/" + to_string(this->maxCapOpenAttempt) + ")");
             QThread::sleep(10);
-            cap.release();
-            cap = VideoCapture();
-            // seems if we just open withOUT re-assign, may cause segmentation fault?
+            // cap.release();
+            // seems we cannot call release() here because OpenCV's document says:
+            // "[it] also deallocates memory and clears *capture pointer". Appears to me that
+            // release() makes my cap a nullptr...
             cap.open(this->url);
             emit sendTextMessage(this->labelName, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
             continue;            
@@ -89,7 +90,7 @@ void rtspReader::run()
         this->capOpenAttempts = 0;
         emit sendNewFrame(frame, this->label);
     }    
-    cap.release();
+    // cap.release();
     // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.
     emit sendTextMessage(this->labelName, "RTSP stream loop stopped gracefully");
 }

@@ -75,20 +75,23 @@ void MainWindow::showEvent( QShowEvent* event ) {
 
     QWidget::showEvent( event );
     // the code below will be executed AFTER the MainWindow is shown
-    loadSettings();
-    srand (time(NULL));
-    this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
-    connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
-    on_comboBoxDomainNames_currentIndexChanged1(0);
-    /*
-        Note this design:
-        1. No slot is predefined in Qt Designer;
-        2. Load comboBoxDomainNames values from settings file--no slot event will be triggered;
-        3. then we pick a random item, so that it triggers the slot only once.
-        4. Enable slot;
-        How about we swap the order of 3 and 4? No, if the same value is randomly picked, then the event
-        will NOT be triggered!
-    */
+    if (isMainWindowInitialized == false) {
+        loadSettings();
+        srand (time(NULL));
+        this->ui->comboBoxDomainNames->setCurrentIndex(rand() % this->ui->comboBoxDomainNames->count());
+        connect(this->ui->comboBoxDomainNames, &QComboBox::currentIndexChanged, this, &MainWindow::on_comboBoxDomainNames_currentIndexChanged1);
+        on_comboBoxDomainNames_currentIndexChanged1(0);
+        /*
+            Note this design:
+            1. No slot is predefined in Qt Designer;
+            2. Load comboBoxDomainNames values from settings file--no slot event will be triggered;
+            3. then we pick a random item, so that it triggers the slot only once.
+            4. Enable slot;
+            How about we swap the order of 3 and 4? No, if the same value is randomly picked, then the event
+            will NOT be triggered!
+        */
+        this->isMainWindowInitialized = true;
+    }
 }
 
 void MainWindow::loadSettings() {

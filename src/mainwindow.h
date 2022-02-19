@@ -29,6 +29,7 @@ private:
     int channelCount = 20;
     QString *myUrls4Channels = new QString[4];
     QString *myUrls16Channels = new QString[16];
+    bool isMainWindowInitialized = false;
 
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);
