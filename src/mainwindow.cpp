@@ -59,11 +59,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->frameLabels[idx++] = ui->label16Channel32;
     this->frameLabels[idx++] = ui->label16Channel33;
 
-    *(this->globalQueueDepthPtr) = 0;
+    this->globalQueueDepth = 0;
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         myRtspReaders[i].setChannelId(i);
         myRtspReaders[i].setTargetFPS(100.0);
-        myRtspReaders[i].setQueueDepthPointer(this->globalQueueDepthPtr);
+        myRtspReaders[i].setQueueDepthPointer(ref(globalQueueDepth));
     }
 
     cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
@@ -135,7 +135,6 @@ MainWindow::~MainWindow()
     delete[] myUrls4Channels;
     delete[] myUrls16Channels;
     delete[] myRtspReaders;
-    delete this->globalQueueDepthPtr;
     delete ui;
 }
 
@@ -153,8 +152,8 @@ void MainWindow::onNewFrameReceived(int channelId, Mat frame) {
         frameLabels[channelId]->setPixmap(pixmap.scaled(frameLabels[channelId]->width() > 1 ? frameLabels[channelId]->width() - 1: 1,
                                        frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
                                        Qt::IgnoreAspectRatio));
-        *(this->globalQueueDepthPtr) = *(this->globalQueueDepthPtr) -1;
-        cout << *(this->globalQueueDepthPtr) << endl;
+        this->globalQueueDepth = this->globalQueueDepth -1;
+        cout << this->globalQueueDepth << endl;
     } else {
         frameLabels[channelId]->clear();
         frameLabels[channelId]->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");

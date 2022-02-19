@@ -34,7 +34,7 @@ private:
     bool isMainWindowInitialized = false;
     QLabel *frameLabels[channelCount];
     Mat rawFrames[channelCount];
-    atomic<int>* globalQueueDepthPtr = new atomic<int>;
+    atomic_int globalQueueDepth = atomic_int(0);
 
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);

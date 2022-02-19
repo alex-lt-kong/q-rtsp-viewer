@@ -32,8 +32,8 @@ void rtspReader::setTargetFPS(float fps) {
     this->targetFps = fps;
 }
 
-void rtspReader::setQueueDepthPointer(atomic<int>* depthPtr) {
-    this->globalQueueDepth = depthPtr;
+void rtspReader::setQueueDepthPointer(atomic_int& depthPtr) {
+    this->globalQueueDepth = atomic_int(depthPtr);
 }
 
 void rtspReader::stop() {
@@ -82,7 +82,7 @@ void rtspReader::run()
         }
 
         readResult = cap.grab();
-        if (*(this->globalQueueDepth) > 2) { continue; cout << "frame dropped" << endl; }
+        if (this->globalQueueDepth > 2) { continue; cout << "frame dropped" << endl; }
         readResult = readResult && cap.retrieve(this->frame);
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
@@ -101,7 +101,7 @@ void rtspReader::run()
         }
 
         this->capOpenAttempts = 0;
-        *(this->globalQueueDepth) = *(this->globalQueueDepth) + 1;
+        this->globalQueueDepth = this->globalQueueDepth + 1;
         emit sendNewFrame(this->channelId, this->frame.clone());
 
         // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
