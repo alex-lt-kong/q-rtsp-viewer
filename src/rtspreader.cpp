@@ -32,7 +32,7 @@ void rtspReader::setTargetFPS(float fps) {
     this->targetFps = fps;
 }
 
-void rtspReader::setQueueDepthPointer(int* depthPtr) {
+void rtspReader::setQueueDepthPointer(atomic<int>* depthPtr) {
     this->globalQueueDepth = depthPtr;
 }
 
@@ -102,7 +102,7 @@ void rtspReader::run()
 
         this->capOpenAttempts = 0;
         emit sendNewFrame(this->channelId, this->frame.clone());
-        *(this->globalQueueDepth)++;
+        *(this->globalQueueDepth) = *(this->globalQueueDepth) + 1;
 
         // this->frame.clone(): if emit is asynchronous, is it possible that this->frame is re-written
         // before it is fully consumed by GUI thread? Is this the cause of random segmentation fault?
