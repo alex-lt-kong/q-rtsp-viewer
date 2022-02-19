@@ -73,7 +73,7 @@ void rtspReader::run()
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
             emit sendTextMessage(this->channelId,
-                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then re-trying to re-open() cv::VideoCapture after  (" +
+                                 "(readResult == false || this->frame.empty() || cap.isOpened() == false) triggered: waiting for 10 sec and then trying to re-open() cv::VideoCapture (" +
                                  to_string(++this->capOpenAttempts) +  "/" + to_string(rtspReader::maxCapOpenAttempt) + ")");
             emit sendNewFrame(this->channelId, this->emptyFrame);
             // here we cannot assume this->frame is empty--if cap is closed, it may
