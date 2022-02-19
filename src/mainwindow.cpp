@@ -135,7 +135,7 @@ MainWindow::~MainWindow()
     delete[] myUrls4Channels;
     delete[] myUrls16Channels;
     delete[] myRtspReaders;
-
+    delete this->globalQueueDepthPtr;
     delete ui;
 }
 
