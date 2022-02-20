@@ -277,10 +277,13 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
             continue;
         destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".png");
         QFile file(destPath);
-        file.open(QIODevice::WriteOnly);
-        file.close();
-        writeResult = this->origQPixmaps[i].save(&file, "PNG");
-        cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << endl;
+        if (file.open(QIODevice::WriteOnly)) {
+            writeResult = this->origQPixmaps[i].save(&file, "PNG");
+            file.close();
+            cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << "\n";
+        } else {
+            cout << "Can't open file " << destPath.toStdString() << endl;
+        }
     }
     this->ui->pushButtonSaveScreenshots->setEnabled(true);
 }
