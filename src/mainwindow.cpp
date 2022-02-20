@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
         connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,std::string)), SLOT(onNewTextMessageReceived(int,std::string)));
-        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,cv::Mat,long long int)), SLOT(onNewFrameReceived(int,cv::Mat,long long int)));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), SLOT(onNewFrameReceived(int,QPixmap,long long int)));
     }
 }
 
@@ -138,29 +138,24 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onNewFrameReceived(int channelId, Mat frame, long long int msSinceEpoch) {
+void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch) {
 
-    if (frame.empty() == false) {
+   // if (pixmap != nullptr) {
 
         long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int msDiff = msNow - msSinceEpoch;
-        if (msDiff > 10) { cout << "gap: " << msDiff << "ms, frame dropped" << endl; return; }
+        if (msDiff > 100) { cout << "gap: " << msDiff << "ms, frame dropped" << endl; return; }
 
-        rawFrames[channelId] = frame;
-        QImage image = QImage(
-                    (uchar*)rawFrames[channelId].data,
-                    rawFrames[channelId].cols,
-                    rawFrames[channelId].rows,
-                    rawFrames[channelId].step,
-                    QImage::Format_BGR888);
-        QPixmap pixmap = QPixmap::fromImage(image);
+        //rawFrames[channelId] = &frame;
+
         frameLabels[channelId]->setPixmap(pixmap.scaled(frameLabels[channelId]->width() > 1 ? frameLabels[channelId]->width() - 1: 1,
-                                       frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
-                                       Qt::IgnoreAspectRatio));        
-    } else {
+                                                        frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
+                                                        Qt::IgnoreAspectRatio));
+  /*  }
+    else {
         frameLabels[channelId]->clear();
         frameLabels[channelId]->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");
-    }
+    }*/
 }
 
 void MainWindow::onNewTextMessageReceived(int channelId, string message) {
@@ -269,10 +264,10 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
 
     QDateTime dateTime = dateTime.currentDateTime();
     for (int i = 0; i < MainWindow::channelCount; i ++) {
-        if (rawFrames[i].empty())
+        if (rawFrames[i]->empty())
             continue;
         destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".jpg");
-        writeResult = imwrite(destPath.toStdString(), rawFrames[i]);
+        writeResult = imwrite(destPath.toStdString(), *rawFrames[i]);
         cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << endl;
     }
 }

@@ -27,11 +27,11 @@ private slots:
 private:
     Ui::MainWindow *ui;
     const static int channelCount = 20;
-    QString *myUrls4Channels = new QString[4];
-    QString *myUrls16Channels = new QString[16];
+    QString* myUrls4Channels = new QString[4];
+    QString* myUrls16Channels = new QString[16];
     bool isMainWindowInitialized = false;
-    QLabel *frameLabels[channelCount];
-    Mat rawFrames[channelCount];
+    QLabel* frameLabels[channelCount];
+    Mat* rawFrames[channelCount];
 
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);
@@ -40,7 +40,7 @@ private:
     void loadSettings();
 
 public slots:
-    void onNewFrameReceived(int channelId, cv::Mat frame, long long int msSinceEpoch);
+    void onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch);
     void onNewTextMessageReceived(int channelId, std::string message);
 };
 

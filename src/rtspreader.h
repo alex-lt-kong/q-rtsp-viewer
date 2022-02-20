@@ -39,7 +39,7 @@ private:
     string getVideoCaptureBackend(VideoCapture vc);
 
 signals:
-    void sendNewFrame(int channelId, cv::Mat frame, long long int msSinceEpoch);
+    void sendNewFrame(int channelId, QPixmap pixmap, long long int msSinceEpoch);
     void sendTextMessage(int channelId, std::string message);
 };
 #endif // RTSPREADER_H
