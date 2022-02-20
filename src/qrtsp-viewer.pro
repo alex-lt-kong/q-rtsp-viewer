@@ -28,10 +28,14 @@ DISTFILES += \
     README.md
 
 win32 {
+    # Some of the following libraries may be necessary for a Debug build
+    # only, but let's keep them...
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_core3416.dll.a"
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_video3416.dll.a"
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_videoio3416.dll.a"
     LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_imgcodecs3416.dll.a"
+    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_imgproc3416.dll.a"
+    LIBS += "C:\lib\build_opencv\install\x64\mingw\lib\libopencv_highgui3416.dll.a"
     INCLUDEPATH += C:\lib\build_opencv\install\include
 }
 
