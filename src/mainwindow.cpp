@@ -262,6 +262,7 @@ void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
 
 void MainWindow::on_pushButtonSaveScreenshots_clicked()
 {
+    this->ui->pushButtonSaveScreenshots->setEnabled(false);
     QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/监控-cctv/";
     bool writeResult = false;
     QString destPath;
@@ -281,6 +282,7 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
         writeResult = this->origQPixmaps[i].save(&file, "PNG");
         cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << endl;
     }
+    this->ui->pushButtonSaveScreenshots->setEnabled(true);
 }
 
 void MainWindow::on_spinBoxFpsThrottle_valueChanged(int arg1)
