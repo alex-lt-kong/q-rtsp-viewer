@@ -6,6 +6,7 @@ A Qt-based cross-platform RTSP stream viewer with a ~~C++'s notoriously tricky~~
 
 * On Windows
 <img src="./images/screenshot-windows.png">
+
 * On Linux
 <img src="./images/screenshot-linux.png">
 
