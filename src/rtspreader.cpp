@@ -36,7 +36,7 @@ void rtspReader::setFpsThrottle(float fpsUpperLimit) {
     this->frameIntervalInMs = 1000 * (1 / this->fpsUpperLimit);
 }
 
-void rtspReader::stop() {
+void rtspReader::stop() {    
     this->stopSignal = true;
 }
 
@@ -55,16 +55,14 @@ string rtspReader::getVideoCaptureBackend(VideoCapture vc) {
 
 void rtspReader::run()
 {
+    if (this->url == "") { emit sendTextMessage(this->channelId, "this->url is EMPTY, returned;");  return; }
+
     this->stopSignal = false;
     this->capOpenAttempts = 0;
-    if (this->url == "") {
-        emit sendTextMessage(this->channelId, "this->url is EMPTY, returned;");
-        return;
-    }
     bool readResult = false;
     long long int prevMsSinceEpoch = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
     long long int currMsSinceEpoch = 0;
-
+    QImage image;
     VideoCapture cap = VideoCapture();
 
     cap.set(CV_CAP_PROP_BUFFERSIZE, this->fpsUpperLimit);
@@ -73,11 +71,15 @@ void rtspReader::run()
     emit sendTextMessage(this->channelId, "URL [" + this->url + "], open() result: " +
                          to_string(cap.isOpened()) + ", backedend: " + this->getVideoCaptureBackend(cap));
 
-    while (this->stopSignal == false) {
-
+    while (true) {
+        if (this->stopSignal) {
+            cout << this->channelId << ": stopSignal caught by message loop, RTSP stream loop stopped gracefully" << endl;
+            // emit cannot be used here since the SIGNAL() could have been disconnect()'ed.
+            break;
+        }
         if (this->capOpenAttempts >= rtspReader::maxCapOpenAttempt) {
             emit sendTextMessage(this->channelId, "Too many failed attempts, leaving the message loop...");
-          //  emit sendNewFrame(this->channelId, this->emptyFrame, -1);
+            emit sendNewFrame(this->channelId, QPixmap(), chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count());
             break;
         }
 
@@ -85,7 +87,7 @@ void rtspReader::run()
         currMsSinceEpoch = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         if ((currMsSinceEpoch - prevMsSinceEpoch) < this->frameIntervalInMs) { continue; }
         prevMsSinceEpoch = currMsSinceEpoch;
-        readResult = readResult && cap.retrieve(this->frame);
+        if (readResult) { readResult = readResult && cap.retrieve(this->frame); }
 
         if (readResult == false || this->frame.empty() || cap.isOpened() == false) {
             emit sendTextMessage(this->channelId,
@@ -95,23 +97,14 @@ void rtspReader::run()
             // cap.release(); -> seems we cannot call release() here because OpenCV's document says:
             // "[it] also deallocates memory and clears *capture pointer". Appears to me that release() makes cap a nullptr...
             cap.open(this->url);
-            emit sendTextMessage(this->channelId, "cv::VideoCapture reopen result: " + to_string(cap.isOpened()));
-
+            emit sendTextMessage(this->channelId, "cv::VideoCapture re-open() result: " + to_string(cap.isOpened()));
             continue;            
         }
 
         this->capOpenAttempts = 0;
-        QImage image = QImage(
-                    (uchar*)this->frame.data,
-                    this->frame.cols,
-                    this->frame.rows,
-                    this->frame.step,
-                    QImage::Format_BGR888);
-        QPixmap qp = QPixmap::fromImage(image);
+        image = QImage((uchar*)this->frame.data, this->frame.cols, this->frame.rows, this->frame.step, QImage::Format_BGR888);
         emit sendNewFrame(this->channelId, QPixmap::fromImage(image), chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count());
-  //      cv::imshow(to_string(this->channelId), frame);
-    }    
+    }
     // cap.release();
     // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.
-    emit sendTextMessage(this->channelId, "RTSP stream loop stopped gracefully");
 }

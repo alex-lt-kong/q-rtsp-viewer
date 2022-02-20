@@ -32,7 +32,7 @@ private:
     QString* myUrls16Channels = new QString[16];
     bool isMainWindowInitialized = false;
     QLabel* frameLabels[channelCount];
-    Mat* rawFrames[channelCount];
+    QPixmap origQPixmaps[channelCount];
 
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);

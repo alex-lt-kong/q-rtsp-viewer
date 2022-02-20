@@ -72,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent) :
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
         connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,std::string)), SLOT(onNewTextMessageReceived(int,std::string)));
         connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), SLOT(onNewFrameReceived(int,QPixmap,long long int)), Qt::ConnectionType::BlockingQueuedConnection);
+        // Qt::ConnectionType::BlockingQueuedConnection appears to be a must option, otherwise, some cross-thread memory IO
+        // could cause random segmentation fault on Windows after running for a while (typically between a few minutes to one hour)
+        // however, one negative impact of this ConnectionType seems to be that we need to manually disconnect() the SLOT() in ~MainWindow().
     }
 }
 
@@ -126,7 +129,10 @@ void MainWindow::loadSettings() {
 
 MainWindow::~MainWindow()
 {
-    cout << "Stop signal received, exiting..." << endl;
+    for (int i = 0; i < this->channelCount; i++){
+        disconnect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), 0, 0);
+    }
+
     stopStreams(0, true);
     stopStreams(1, true);
 
@@ -140,23 +146,24 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch) {
-
-   // if (pixmap != nullptr) {
-
+    origQPixmaps[channelId] = pixmap;
+    if (origQPixmaps[channelId].isNull() == false) {
         long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int msDiff = msNow - msSinceEpoch;
-        if (msDiff > 100) { cout << "gap: " << msDiff << "ms, frame dropped" << endl; return; }
+        if (msDiff > 100) { cout << "difference between SIGNAL and SLOT too large (" << msDiff << "ms), frame dropped" << endl; return; }
 
-        //rawFrames[channelId] = &frame;
-
-        frameLabels[channelId]->setPixmap(pixmap.scaled(frameLabels[channelId]->width() > 1 ? frameLabels[channelId]->width() - 1: 1,
-                                                        frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
-                                                        Qt::IgnoreAspectRatio));
-  /*  }
+        frameLabels[channelId]->setPixmap(
+                    origQPixmaps[channelId].scaled(
+                        frameLabels[channelId]->width() > 1 ? frameLabels[channelId]->width() - 1: 1,
+                        frameLabels[channelId]->height() > 1 ? frameLabels[channelId]->height() - 1: 1,
+                        Qt::IgnoreAspectRatio));
+    }
     else {
         frameLabels[channelId]->clear();
-        frameLabels[channelId]->setText("无法从RTSP源读取画面/Failed to read frame from RTSP stream");
-    }*/
+        frameLabels[channelId]->setText(
+                    "无法从RTSP源读取画面，请切换域名后重试 / "
+                    "Failed to read frame from RTSP stream, please switch a domain name and try again");
+    }
 }
 
 void MainWindow::onNewTextMessageReceived(int channelId, string message) {
@@ -255,7 +262,7 @@ void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
 
 void MainWindow::on_pushButtonSaveScreenshots_clicked()
 {
-    QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/cctv/";
+    QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/监控-cctv/";
     bool writeResult = false;
     QString destPath;
 
@@ -265,10 +272,13 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
 
     QDateTime dateTime = dateTime.currentDateTime();
     for (int i = 0; i < MainWindow::channelCount; i ++) {
-        if (rawFrames[i]->empty())
+        if (this->frameLabels[i]->pixmap().isNull())
             continue;
-        destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".jpg");
-        writeResult = imwrite(destPath.toStdString(), *rawFrames[i]);
+        destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".png");
+        QFile file(destPath);
+        file.open(QIODevice::WriteOnly);
+        file.close();
+        writeResult = this->origQPixmaps[i].save(&file, "PNG");
         cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << endl;
     }
 }
