@@ -141,7 +141,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch) {
 
-    return;
    // if (pixmap != nullptr) {
 
         long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();

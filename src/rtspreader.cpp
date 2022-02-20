@@ -109,7 +109,7 @@ void rtspReader::run()
                     QImage::Format_BGR888);
         QPixmap qp = QPixmap::fromImage(image);
         emit sendNewFrame(this->channelId, QPixmap::fromImage(image), chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count());
-        cv::imshow(to_string(this->channelId), frame);
+  //      cv::imshow(to_string(this->channelId), frame);
     }    
     // cap.release();
     // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.
