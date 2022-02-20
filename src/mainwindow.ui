@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1007</width>
-    <height>618</height>
+    <width>1069</width>
+    <height>627</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -559,6 +559,38 @@
       </item>
       <item>
        <widget class="QComboBox" name="comboBoxDomainNames"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelFpsThrottle">
+        <property name="maximumSize">
+         <size>
+          <width>256</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>帧率限制/FPS Throttle</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spinBoxFpsThrottle">
+        <property name="maximumSize">
+         <size>
+          <width>64</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonSaveScreenshots">

@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         myRtspReaders[i].setChannelId(i);
-        myRtspReaders[i].setTargetFPS(100.0);
+        myRtspReaders[i].setFpsThrottle(this->ui->spinBoxFpsThrottle->value());
     }
 
     cout << "cv::getBuildInformation():\n" <<  getBuildInformation();
@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         // https://stackoverflow.com/questions/14545961/modify-qt-gui-from-background-worker-thread
         connect(&myRtspReaders[i], SIGNAL(sendTextMessage(int,std::string)), SLOT(onNewTextMessageReceived(int,std::string)));
-        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), SLOT(onNewFrameReceived(int,QPixmap,long long int)));
+        connect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), SLOT(onNewFrameReceived(int,QPixmap,long long int)), Qt::ConnectionType::BlockingQueuedConnection);
     }
 }
 
@@ -141,6 +141,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch) {
 
+    return;
    // if (pixmap != nullptr) {
 
         long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
@@ -270,6 +271,13 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
         destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".jpg");
         writeResult = imwrite(destPath.toStdString(), *rawFrames[i]);
         cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << endl;
+    }
+}
+
+void MainWindow::on_spinBoxFpsThrottle_valueChanged(int arg1)
+{
+    for (int i = 0; i < MainWindow::channelCount; i ++) {
+        myRtspReaders[i].setFpsThrottle(this->ui->spinBoxFpsThrottle->value());
     }
 }
 

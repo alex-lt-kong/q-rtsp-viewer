@@ -23,6 +23,7 @@ private slots:
     void on_tabWidget_currentChanged(int index);
     void on_comboBoxDomainNames_currentIndexChanged1(int index);
     void on_pushButtonSaveScreenshots_clicked();
+    void on_spinBoxFpsThrottle_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

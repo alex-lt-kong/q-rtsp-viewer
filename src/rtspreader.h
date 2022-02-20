@@ -21,7 +21,7 @@ public:
     void stop();
     void setRtspUrl(string url);
     void setChannelId(int id);
-    void setTargetFPS(float fps);
+    void setFpsThrottle(float fpsUpperLimit);
 
 protected:
     void run();
@@ -34,7 +34,8 @@ private:
     const Mat emptyFrame;
     Mat frame;
     int capOpenAttempts;
-    float targetFps;
+    float fpsUpperLimit;
+    int frameIntervalInMs = 24;
 
     string getVideoCaptureBackend(VideoCapture vc);
 
