@@ -1,6 +1,6 @@
 # Q-RTSP-Viewer
 
-A Qt-based cross-platform RTSP stream viewer.
+A Qt-based cross-platform RTSP stream viewer with a ~~C++'s notoriously tricky~~ multi-threaded architecture.
 
 ## Screenshots
 
