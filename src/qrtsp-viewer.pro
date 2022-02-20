@@ -24,9 +24,6 @@ FORMS    += mainwindow.ui
 RESOURCES += \
     resources.qrc
 
-DISTFILES += \
-    README.md
-
 win32 {
     # Some of the following libraries may be necessary for a Debug build
     # only, but let's keep them...

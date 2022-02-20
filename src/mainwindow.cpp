@@ -126,6 +126,7 @@ void MainWindow::loadSettings() {
 
 MainWindow::~MainWindow()
 {
+    cout << "Stop signal received, exiting..." << endl;
     stopStreams(0, true);
     stopStreams(1, true);
 
