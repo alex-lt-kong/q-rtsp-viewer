@@ -2,9 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QGridLayout>
-#include <QMediaPlayer>
-#include <QNetworkRequest>
-#include <QVideoWidget>
 #include <QSettings>
 #include <iostream>
 #include <QDebug>

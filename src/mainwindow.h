@@ -2,8 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QMediaPlayer>
-#include <QVideoWidget>
 #include <rtspreader.h>
 
 namespace Ui {

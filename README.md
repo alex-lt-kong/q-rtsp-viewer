@@ -4,11 +4,11 @@ A Qt-based cross-platform RTSP stream viewer with a ~~C++'s notoriously tricky~~
 
 ## Screenshots
 
-* On Windows
-<img src="./images/screenshot-windows.png">
-
 * On Linux
 <img src="./images/screenshot-linux.png">
+
+* On Windows (nightvision mode)
+<img src="./images/screenshot-windows.png">
 
 ## Deployment
 
@@ -55,3 +55,6 @@ The exact process is not exactly the same as any of the links...
 ```
 -L/usr/local/lib -lopencv_dnn -lopencv_highgui -lopencv_ml -lopencv_objdetect -lopencv_shape -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_videoio -lopencv_imgcodecs -lopencv_features2d -lopencv_video -lopencv_photo -lopencv_imgproc -lopencv_flann -lopencv_core
 ```
+##### Troubleshooting #####
+
+* libopencv_core.so.3.x: cannot open shared object file: No such file or directory: https://github.com/cggos/DIPDemoQt/issues/1

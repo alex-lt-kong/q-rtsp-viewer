@@ -1,7 +1,5 @@
 QT       += core gui
 QT       += widgets
-QT       += network
-QT       += multimediawidgets
 
 CONFIG   += c++11
 
@@ -12,12 +10,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 RC_FILE = qrtsp-viewer.rc
 
-SOURCES += main.cpp\
+SOURCES += main.cpp \
         mainwindow.cpp \
         rtspreader.cpp
 
 HEADERS  += mainwindow.h \
-    rtspreader.h
+         rtspreader.h
 
 FORMS    += mainwindow.ui
 
@@ -38,7 +36,7 @@ win32 {
 
 unix{
     LIBS += -L/usr/local/lib
-    LIBS += -lopencv_highgui -lopencv_videostab -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_imgproc -lopencv_core
+    LIBS += -lopencv_highgui -lopencv_videostab -lopencv_imgcodecs -lopencv_video -lopencv_videoio -lopencv_imgproc -lopencv_core
     INCLUDEPATH += /usr/local/include/opencv2
     # These 3 lines are equal to
     # g++ example.cpp -o example -I/usr/local/include/opencv2 -L/usr/local/lib
