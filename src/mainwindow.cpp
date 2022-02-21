@@ -284,6 +284,7 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         if (this->frameLabels[i]->pixmap().isNull())
             continue;
+        QCoreApplication::processEvents();
         destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".png");
         QFile file(destPath);
         if (file.open(QIODevice::WriteOnly)) {
