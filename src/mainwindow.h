@@ -28,6 +28,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     const static int channelCount = 20;
+    const QString orgnizationName = "ak-studio";
+    const QString appName = "qrtsp-viewer";
     QString* myUrls4Channels = new QString[4];
     QString* myUrls16Channels = new QString[16];
     bool isMainWindowInitialized = false;

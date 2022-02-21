@@ -103,7 +103,7 @@ void MainWindow::showEvent( QShowEvent* event ) {
 
 void MainWindow::loadSettings() {
 
-    QSettings settings("ak-studio", "qrtsp-viewer");
+    QSettings settings(this->orgnizationName, this->appName);
 
     int size = settings.beginReadArray("4ChannelUrls");
     for (int i = 0; i < size; ++i) {
@@ -125,6 +125,8 @@ void MainWindow::loadSettings() {
         this->ui->comboBoxDomainNames->addItem(settings.value("name").toString());
     }
     settings.endArray();
+
+    this->ui->spinBoxFpsThrottle->setValue(settings.value("fpsThrottle", 5).toInt());
 }
 
 MainWindow::~MainWindow()
@@ -143,6 +145,7 @@ MainWindow::~MainWindow()
     delete[] myUrls16Channels;
     delete[] myRtspReaders;
     delete ui;
+    cout << "~MainWindow() returns gracefully" << endl;
 }
 
 void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch) {
@@ -264,12 +267,18 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
 {
     this->ui->pushButtonSaveScreenshots->setEnabled(false);
     QString destDirectory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/监控-cctv/";
-    bool writeResult = false;
+    bool result = false;
     QString destPath;
 
     QDir dir(destDirectory);
-    if (!dir.exists())
-        dir.mkpath(".");
+    if (!dir.exists()) {
+        if (dir.mkpath(".")) {
+            cout << "Directory " << destDirectory.toStdString() << "does not exist and mkpath()'ed" << endl;
+        } else {
+            cout << "Directory " << destDirectory.toStdString() << "does not exist but mkpath() failed, save aborted" << endl;
+            return;
+        }
+    }
 
     QDateTime dateTime = dateTime.currentDateTime();
     for (int i = 0; i < MainWindow::channelCount; i ++) {
@@ -278,9 +287,9 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
         destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".png");
         QFile file(destPath);
         if (file.open(QIODevice::WriteOnly)) {
-            writeResult = this->origQPixmaps[i].save(&file, "PNG");
+            result = this->origQPixmaps[i].save(&file, "PNG");
             file.close();
-            cout << "Written screenshot to " << destPath.toStdString() << ", result: " << writeResult << "\n";
+            cout << "Written screenshot to " << destPath.toStdString() << ", result: " << result << "\n";
         } else {
             cout << "Can't open file " << destPath.toStdString() << endl;
         }
@@ -290,6 +299,8 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
 
 void MainWindow::on_spinBoxFpsThrottle_valueChanged(int arg1)
 {
+    QSettings settings(this->orgnizationName, this->appName);
+    settings.setValue("fpsThrottle", this->ui->spinBoxFpsThrottle->value());
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         myRtspReaders[i].setFpsThrottle(this->ui->spinBoxFpsThrottle->value());
     }
