@@ -135,8 +135,8 @@ MainWindow::~MainWindow()
         disconnect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), 0, 0);
     }
 
-    stopStreams(0, true);
-    stopStreams(1, true);
+    stopStreams(0, 10);
+    stopStreams(1, 10);
 
     // Although the heap will be cleared by OS anyway,
     // it is still a good practice to delete[] then yourself!
@@ -153,7 +153,12 @@ void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int
     if (origQPixmaps[channelId].isNull() == false) {
         long long int msNow = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int msDiff = msNow - msSinceEpoch;
-        if (msDiff > 100) { cout << "difference between SIGNAL and SLOT too large (" << msDiff << "ms), frame dropped" << endl; return; }
+        if (msDiff > 100) {
+            QDateTime dateTime = dateTime.currentDateTime();
+            cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
+                 << "difference between SIGNAL and SLOT too large (" << msDiff << "ms), frame dropped" << endl;
+            return;
+        }
 
         frameLabels[channelId]->setPixmap(
                     origQPixmaps[channelId].scaled(
@@ -180,24 +185,40 @@ void MainWindow::onNewTextMessageReceived(int channelId, string message) {
     // Have to flush by calling endl, otherwise a line may be partially shown ¯\_(ツ)_/¯
 }
 
-void MainWindow::stopStreams(int tabIndex, bool wait) {
-
+void MainWindow::stopStreams(int tabIndex, int waitSec) {
+    QDeadlineTimer deadline(waitSec * 1000);
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
             myRtspReaders[i].stop();
         }
-        if (wait) {
+        if (waitSec > 0) {
             for (int i = 0; i < 4; i ++) {
-                myRtspReaders[i].wait();
+                if (myRtspReaders[i].wait(deadline) == false) {
+                    QDateTime dateTime = dateTime.currentDateTime();
+                    cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
+                         << "wait(timeout) reached, thread " << i << " still runing, skipped" << endl;
+                    // seems terminate() causes ffmpeg to throw an exception which
+                    // we have no way to catch, so can only wait() and skip...
+                    // upgrading to OpenCv 4.x may or may not help...
+                }
+                QCoreApplication::processEvents();
             }
         }
     } else {
         for (int i = 0; i < 16; i ++) {
             myRtspReaders[4+i].stop();
         }
-        if (wait) {
+        if (waitSec > 0) {
             for (int i = 0; i < 16; i ++) {
-                myRtspReaders[4+i].wait();
+                if (myRtspReaders[4+i].wait(deadline) == false) {
+                    QDateTime dateTime = dateTime.currentDateTime();
+                    cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
+                         << "wait(timeout) reached, thread " << 4+i << " still runing, skipped" << endl;
+                    // seems terminate() causes ffmpeg to throw an exception which
+                    // we have no way to catch, so can only wait() and skip...
+                    // upgrading to OpenCv 4.x may or may not help...
+                }
+                QCoreApplication::processEvents();
             }
         }
     }
@@ -226,31 +247,27 @@ void MainWindow::playStreams(int tabIndex) {
     }
 }
 
-
 void MainWindow::on_pushButtonExit_clicked()
 {
     QApplication::quit();
 }
 
-
-
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     if (index == 0) {
-        stopStreams(1, false);
+        stopStreams(1, 0);
         playStreams(0);
     }
     else {
-        stopStreams(0, false);
+        stopStreams(0, 0);
         playStreams(1);
     }
 }
 
-
 void MainWindow::on_comboBoxDomainNames_currentIndexChanged1(int index)
 {
-    stopStreams(0, this->ui->tabWidget->currentIndex() == 0);
-    stopStreams(1, this->ui->tabWidget->currentIndex() == 1);
+    stopStreams(0, this->ui->tabWidget->currentIndex() == 0 ? 10 : 0);
+    stopStreams(1, this->ui->tabWidget->currentIndex() == 1 ? 10 : 0);
     // we want to stop both since if the user change the selected domain name
     // the program should reload the RTSP stream from the new domain name
 
@@ -284,6 +301,7 @@ void MainWindow::on_pushButtonSaveScreenshots_clicked()
     for (int i = 0; i < MainWindow::channelCount; i ++) {
         if (this->frameLabels[i]->pixmap().isNull())
             continue;
+        QCoreApplication::processEvents();
         destPath = destDirectory + QString::fromStdString("channel" + to_string(i+1) + "_") + dateTime.toString("yyyyMMdd-HHmmss") + QString::fromStdString(".png");
         QFile file(destPath);
         if (file.open(QIODevice::WriteOnly)) {
