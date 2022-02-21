@@ -132,8 +132,8 @@ MainWindow::~MainWindow()
         disconnect(&myRtspReaders[i], SIGNAL(sendNewFrame(int,QPixmap,long long int)), 0, 0);
     }
 
-    stopStreams(0, 10);
-    stopStreams(1, 10);
+    stopStreams(0, 30);
+    stopStreams(1, 30);
 
     // Although the heap will be cleared by OS anyway,
     // it is still a good practice to delete[] then yourself!
