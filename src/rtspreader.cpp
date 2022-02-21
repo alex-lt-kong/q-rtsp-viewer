@@ -54,7 +54,7 @@ string rtspReader::getVideoCaptureBackend(VideoCapture vc) {
 
 
 void rtspReader::run()
-{
+{    try {
     if (this->url == "") { emit sendTextMessage(this->channelId, "this->url is EMPTY, returned;");  return; }
 
     this->stopSignal = false;
@@ -66,10 +66,11 @@ void rtspReader::run()
     VideoCapture cap = VideoCapture();
 
     cap.set(CV_CAP_PROP_BUFFERSIZE, this->fpsUpperLimit);
-    emit sendTextMessage(this->channelId, "URL [" + this->url + "] opening");
+    emit sendTextMessage(this->channelId, "URL [" + this->url + "] open()'ing");
     cap.open(this->url);
     emit sendTextMessage(this->channelId, "URL [" + this->url + "], open() result: " +
                          to_string(cap.isOpened()) + ", backedend: " + this->getVideoCaptureBackend(cap));
+
 
     while (true) {
         if (this->stopSignal) {
@@ -104,6 +105,10 @@ void rtspReader::run()
         this->capOpenAttempts = 0;
         image = QImage((uchar*)this->frame.data, this->frame.cols, this->frame.rows, this->frame.step, QImage::Format_BGR888);
         emit sendNewFrame(this->channelId, QPixmap::fromImage(image), chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count());
+    }    }
+    catch (...) {
+      // Block of code to handle errors
+        cout << "error" << endl;
     }
     // cap.release();
     // The method is automatically called by subsequent VideoCapture::open and by VideoCapture destructor.

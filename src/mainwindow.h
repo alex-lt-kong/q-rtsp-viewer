@@ -39,7 +39,7 @@ private:
     rtspReader *myRtspReaders = new rtspReader[20];
     void showEvent(QShowEvent* event);
     void playStreams(int tabIndex);
-    void stopStreams(int tabIndex, bool wait);
+    void stopStreams(int tabIndex, int waitSec);
     void loadSettings();
 
 public slots:
