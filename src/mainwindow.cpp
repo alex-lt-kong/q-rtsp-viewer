@@ -196,7 +196,7 @@ void MainWindow::stopStreams(int tabIndex, int waitSec) {
                 if (myRtspReaders[i].wait(deadline) == false) {
                     QDateTime dateTime = dateTime.currentDateTime();
                     cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
-                         << "wait(timeout) reached, thread " << i << " still runing, skipped" << endl;
+                         << "wait(timeout == " << waitSec << "sec) reached, thread " << i << " still runing, skipped" << endl;
                     // seems terminate() causes ffmpeg to throw an exception which
                     // we have no way to catch, so can only wait() and skip...
                     // upgrading to OpenCv 4.x may or may not help...
@@ -213,7 +213,7 @@ void MainWindow::stopStreams(int tabIndex, int waitSec) {
                 if (myRtspReaders[4+i].wait(deadline) == false) {
                     QDateTime dateTime = dateTime.currentDateTime();
                     cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
-                         << "wait(timeout) reached, thread " << 4+i << " still runing, skipped" << endl;
+                         << "wait(timeout == " << waitSec << "sec) reached, thread " << 4+i << " still runing, skipped" << endl;
                     // seems terminate() causes ffmpeg to throw an exception which
                     // we have no way to catch, so can only wait() and skip...
                     // upgrading to OpenCv 4.x may or may not help...
