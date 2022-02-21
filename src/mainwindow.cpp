@@ -145,7 +145,7 @@ MainWindow::~MainWindow()
     delete[] myUrls16Channels;
     delete[] myRtspReaders;
     delete ui;
-    cout << "~MainWindow() returns gracefully" << endl;
+    cout << "~MainWindow() returned gracefully" << endl;
 }
 
 void MainWindow::onNewFrameReceived(int channelId, QPixmap pixmap, long long int msSinceEpoch) {
