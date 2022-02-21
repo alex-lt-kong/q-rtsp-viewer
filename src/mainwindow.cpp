@@ -186,7 +186,13 @@ void MainWindow::onNewTextMessageReceived(int channelId, string message) {
 }
 
 void MainWindow::stopStreams(int tabIndex, int waitSec) {
+
     QDeadlineTimer deadline(waitSec * 1000);
+    // since we are currently using Qt::ConnectionType::BlockingQueuedConnection, what could happen if
+    // we simply wait() forever here?
+    // a worker thread just emitted a frame to main thread, waiting for main thread to process then return
+    // the main thread is wait()'ing a worker thread to quit, so,
+    // A DEADLOCK!
     if (tabIndex == 0) {
         for (int i = 0; i < 4; i ++) {
             myRtspReaders[i].stop();
@@ -197,9 +203,6 @@ void MainWindow::stopStreams(int tabIndex, int waitSec) {
                     QDateTime dateTime = dateTime.currentDateTime();
                     cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
                          << "wait(timeout == " << waitSec << "sec) reached, thread " << i << " still runing, skipped" << endl;
-                    // seems terminate() causes ffmpeg to throw an exception which
-                    // we have no way to catch, so can only wait() and skip...
-                    // upgrading to OpenCv 4.x may or may not help...
                 }
                 QCoreApplication::processEvents();
             }
@@ -214,9 +217,6 @@ void MainWindow::stopStreams(int tabIndex, int waitSec) {
                     QDateTime dateTime = dateTime.currentDateTime();
                     cout << "[" << dateTime.toString("yyyy-MM-dd HH:mm:ss").toStdString() << "] "
                          << "wait(timeout == " << waitSec << "sec) reached, thread " << 4+i << " still runing, skipped" << endl;
-                    // seems terminate() causes ffmpeg to throw an exception which
-                    // we have no way to catch, so can only wait() and skip...
-                    // upgrading to OpenCv 4.x may or may not help...
                 }
                 QCoreApplication::processEvents();
             }
